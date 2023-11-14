@@ -1,0 +1,35 @@
+﻿@using WebApplication3.Models.ViewModel;
+@model TestsViewModel;
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "My tests";
+}
+<h1>@ViewData["Title"]</h1>
+
+    <div class="container mt-4">
+        <table class="table table-bordered table-fixed">
+            <thead>
+                <tr>
+                    <th class="col-3 border">test name</th>
+                    <th class="col-4 border">description</th>
+                    <th class="col-2 border">date</th>
+           @*          <th class="col-1 border">edit</th>
+                    <th class="col-1 border">remove</th> *@
+                </tr>
+            </thead>
+            <tbody>
+            @for (var i = 0; i < Model.TestName.Count; i++)
+                  {
+                <tr>
+                    <td class="border">@Model.TestName[i]</td>
+                    <td class="border">@Model.Description[i]</td>
+                    <td class="border">@Model.Date[i]</td>
+               @*      <th class="border"> icon</th>
+                    <th class="border"> icon</th> *@
+                </tr>
+                  }
+            </tbody>
+        </table>
+    </div>
