@@ -16,7 +16,12 @@ namespace WebApplication3.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            var viewModel = new HomeViewModel();
+            viewModel.Weight = new List<double> { 90, 90, 91, 93, 91, 93, 92, 90, 89, 86, 87, 88 };
+            viewModel.BodyCircumference = new List<double> { 90, 89, 95, 93, 90, 95 };
+            viewModel.Height = new List<int> { 178, 178, 179, 180, 181, 183 };
+            viewModel.BMI = Math.Round(viewModel.Weight.ElementAt(viewModel.Weight.Count - 1) /(((viewModel.Height.ElementAt(viewModel.Height.Count - 1) / 100.0) *(viewModel.Height.ElementAt(viewModel.Height.Count - 1) / 100.0))), 1);
+            return View(viewModel);
         }
 
         public IActionResult Privacy()

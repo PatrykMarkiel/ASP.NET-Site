@@ -3,54 +3,81 @@
 @*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
+ 
 @{
+
     ViewData["Title"] = "Data archives";
 }
 <h1>@ViewData["Title"]</h1>
+@{
+    var uniqueTestNames = Model.TestName.Distinct().ToList();
+}
 
-<h4><b>Test name</b></h4>
+@foreach (var testName in uniqueTestNames)
+{
+    <h4><b>@testName</b></h4>
+
     <table class="table table-bordered table-fixed">
         <thead class="thead-dark">
             <tr>
                 <th class="col-3">Doctor name</th>
-                <th class="col-1">Result</th>
-                <th class="col-1">difference</th>
+                <th class="col-1 text-center">Result</th>
+                <th class="col-1 text-center">Difference</th>
                 <th class="col-4">Description</th>
                 <th class="col-3">Date</th>
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td class="col-3">x</td>
-                <td class="col-1"></td>
-                <td class="col-1"></td>
-                <td class="col-4"></td>
-                <td class="col-3"></td>
-            </tr>
-            <tr>
-                <td class="col-3">x</td>
-                <td class="col-1"></td>
-                <td class="col-1"></td>
-                <td class="col-4"></td>
-                <td class="col-3"></td>
-            </tr>
-            <tr>
-                <td class="col-3">x</td>
-                <td class="col-1"></td>
-                <td class="col-1"></td>
-                <td class="col-4"></td>
-                <td class="col-3"></td>
-            </tr>
-            <tr>
-                <td class="col-3">x</td>
-                <td class="col-1"></td>
-                <td class="col-1"></td>
-                <td class="col-4"></td>
-                <td class="col-3"></td>
-            </tr>
+            @{
+                string prevResult = null; 
+
+                for (var i = 0; i < Model.TestName.Count; i++)
+                {
+                    if (Model.TestName[i] == testName)
+                    {
+                        <tr>
+                            <td class="text-break col-3">@Model.Doctor[i]</td>
+                            <td class="col-1 text-center">@Model.Result[i]</td>
+                            <td class="col-1 text-center">
+                                @if (prevResult != null)
+                                {
+                                    var currentResult = Convert.ToDouble(Model.Result[i]);
+                                    var previousResult = Convert.ToDouble(prevResult);
+                                    var difference = currentResult - previousResult;
+
+                                    if (difference != 0)
+                                    {
+                                        if (difference > 0)
+                                        {
+                                            @("+" + difference)
+                                        }
+                                        else
+                                        {
+                                            @difference
+                                        }
+                                    }
+                                    else
+                                    {
+                                        @("-")
+                                    }
+                                }
+                                else
+                                {
+                                    @("-")
+                                }
+                            </td>
+                            <td class="text-break col-4">@Model.Description[i]</td>
+                            <td class="col-3">@Model.Date[i]</td>
+                        </tr>
+
+                        prevResult = Model.Result[i];
+                    }
+                }
+            }
         </tbody>
     </table>
-  
+}
+    
     <div class="d-flex justify-content-center mt-4">
         <button type="button" class="btn btn-primary">
             Download
