@@ -8,62 +8,42 @@
 {
     <script>
         @{
-            double minValue = 80;
-            double maxValue = 100;
-            double step = 5;
+            double maxValue = Model.Weight.Max();
+            double minValue = Model.Weight.Min();
+
+            maxValue = Math.Ceiling((maxValue) / 10.0) * 10;
+            maxValue = Math.Ceiling(maxValue / 5.0) * 5;
+
+            minValue = Math.Floor(minValue / 5.0) * 5 - 5;
+            if (minValue < 0)
+            {
+                minValue = 0;
+            }
+            if (minValue + 5 > maxValue)
+            {
+                maxValue += 5;
+            }
+            maxValue = Math.Ceiling(maxValue / 5.0) * 5;
+
+            var step = 5;
             var yValues = new List<double>();
             for (double i = minValue; i <= maxValue; i += step)
             {
                 yValues.Add(i);
             }
-
-            var viewModelWeight = new List<double> { 90, 90, 91, 93, 91, 93, 92, 90, 89, 86, 87, 88 };
-
-            var chartValues = viewModelWeight.Where(v => v >= minValue && v <= maxValue).ToList();
+            
+            var ChartValues = new List<double>();
+            @foreach (var Weight in Model.Weight)
+            {
+                ChartValues.Add(Weight);
+            }
         }
     </script>
+
     <div class="container">
         <br>
         <div>
             <div class="my-5 p-4 bg-light text-white center">
-                <canvas id="myChart" style="width:100%;max-width:600px"></canvas>
-                <script>
-                                    const minValue = @minValue;
-                    const maxValue = @maxValue;
-                    const yValues = @Html.Raw(Json.Serialize(yValues));
-                    const xValues = yValues.map((_, index) => ""); 
-                    const chartValues = @Html.Raw(Json.Serialize(chartValues));
-
-                    new Chart("myChart", {
-                        type: "line",
-                        data: {
-                            labels: xValues,
-                            datasets: [{
-                                fill: false,
-                                lineTension: 0.5,
-                                backgroundColor: "rgba(0,0,255,1.0)",
-                                borderColor: "rgba(0,0,255,0.1)",
-                                data: chartValues // Ustawienie danych z viewModel.Weight w zakresie od 80 do 100 na wykresie
-                            }]
-                        },
-                        options: {
-                            legend: { display: false },
-                            scales: {
-                                yAxes: [{
-                                    ticks: {
-                                        min: minValue,
-                                        max: maxValue,
-                                        stepSize: @step // Krok między wartościami na osi Y
-                                                    }
-                                }],
-                                xAxes: [{
-                                    display: false // Ukrycie osi X
-                                }]
-                            }
-                        }
-                    });
-                </script>
-
             </div>
         </div>
 
