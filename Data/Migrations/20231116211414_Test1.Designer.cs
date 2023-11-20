@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication3.Data;
 
@@ -11,9 +12,11 @@ using WebApplication3.Data;
 namespace WebApplication3.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231116211414_Test1")]
+    partial class Test1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -224,22 +227,6 @@ namespace WebApplication3.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("WebApplication3.Data.Entities.BodyMeasureEnum", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("name")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("BodyMeasureE");
-                });
-
             modelBuilder.Entity("WebApplication3.Data.Entities.DeviceEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -259,37 +246,7 @@ namespace WebApplication3.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("DeviceEntity");
-                });
-
-            modelBuilder.Entity("WebApplication3.Data.Entities.MeasurmentEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("InsertionTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("TreatmentTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<double>("Value")
-                        .HasColumnType("float");
-
-                    b.Property<string>("comment")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Measurement");
+                    b.ToTable("Devices");
                 });
 
             modelBuilder.Entity("WebApplication3.Data.Entities.ProfileEntity", b =>
@@ -318,66 +275,6 @@ namespace WebApplication3.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Profiles");
-                });
-
-            modelBuilder.Entity("WebApplication3.Data.Entities.TestTypeEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("Saferange")
-                        .HasColumnType("datetime2");
-
-                    b.Property<double>("Value")
-                        .HasColumnType("float");
-
-                    b.Property<double>("ValueTemplate")
-                        .HasColumnType("float");
-
-                    b.Property<string>("comment")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("TestType");
-                });
-
-            modelBuilder.Entity("WebApplication3.Data.Entities.TestTypeEnum", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("name")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("TestTypeE");
-                });
-
-            modelBuilder.Entity("WebApplication3.Data.Entities.UserTypeEnum", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("name")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("UserTypeE");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

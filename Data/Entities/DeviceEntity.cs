@@ -1,7 +1,10 @@
-﻿namespace WebApplication3.Data.Entities
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace WebApplication3.Data.Entities
 {
     public class DeviceEntity
     {
+        [Key]
         public Guid Id { get; set; }
         public string Name { get; set; } = "";
         public string Description { get; set; } = "";

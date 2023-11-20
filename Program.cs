@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebApplication3.Data;
+using WebApplication3.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,10 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddTransient<IMeasurementRepository, MeasurementRepository>();
+builder.Services.AddTransient<IDeviceEntityRepository, DeviceRepository>();
+builder.Services.AddTransient<ITestTypeEntityRepository, TestTypeRepository>();
+builder.Services.AddTransient<IProfileEntityRepository, ProfileRepository>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
