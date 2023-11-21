@@ -9,7 +9,7 @@
         public DateTime Saferange{ get; set; }
         public double Value { get; set; }
         public double ValueTemplate { get; set; }
-        public TestName name { get; set; }
+        public TestName MeasurementName { get; set; }
 
 }
 

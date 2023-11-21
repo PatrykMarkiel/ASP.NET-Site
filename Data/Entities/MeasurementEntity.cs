@@ -11,6 +11,8 @@
         public double Value { get; set; }
         public BodyPart BodyPartName { get; set; }
 
+        public UserEntity User { get; set; }
+        public string UserId { get; set; }
     }
     public enum BodyPart
     {

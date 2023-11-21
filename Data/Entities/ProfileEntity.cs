@@ -8,6 +8,8 @@
         public DateTime DateOfBirth { get; set; }
         public int PhoneNumber { get; set; }
         public BloodType Blood { get; set; }
+        public UserEntity User { get; set; }
+        public string UserId { get; set; }
     }
     public enum BloodType
     {
