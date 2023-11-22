@@ -1,4 +1,5 @@
-﻿@model WebApplication3.Data.Entities.ProfileEntity
+﻿@using System.ComponentModel.DataAnnotations
+@model WebApplication3.Data.Entities.ProfileEntity
 
 @{
     ViewData["Title"] = "Create";
@@ -24,14 +25,25 @@
             </div>
             <div class="form-group">
                 <label asp-for="DateOfBirth" class="control-label"></label>
-                <input asp-for="DateOfBirth" class="form-control" />
+                <input asp-for="DateOfBirth" class="form-control" type="date" />
                 <span asp-validation-for="DateOfBirth" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Blood" class="control-label"></label>
-                <select asp-for="Blood" class="form-control"></select>
+                <select asp-for="Blood" class="form-control">
+                    @foreach (var bloodType in Enum.GetValues(typeof(WebApplication3.Data.Entities.BloodType)))
+                    {
+                        var displayAttribute = typeof(WebApplication3.Data.Entities.BloodType)
+                        .GetMember(bloodType.ToString())[0]
+                        .GetCustomAttributes(typeof(DisplayAttribute), false)
+                        .FirstOrDefault() as DisplayAttribute;
+
+                        <option value="@bloodType">@displayAttribute?.GetName()</option>
+                    }
+                </select>
                 <span asp-validation-for="Blood" class="text-danger"></span>
             </div>
+            <br>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
