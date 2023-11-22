@@ -5,9 +5,7 @@ namespace WebApplication3.Data.Entities
     {
         public string Email { get; set; } = "";
         public string Password { get; set; } = "";
-        public string Phonenumber { get; set; } = "";
         public UserType UserTypename { get; set; }
-
         public ProfileEntity Profile { get; set; }  
         public int ProfileId { get; set; }
         public ICollection<MeasurementEntity> Measurement { get; set; }
