@@ -22,9 +22,8 @@ namespace WebApplication3.Controllers
         // GET: ProfileEntities
         public async Task<IActionResult> Index()
         {
-              return _context.Profiles != null ? 
-                          View(await _context.Profiles.ToListAsync()) :
-                          Problem("Entity set 'ApplicationDbContext.Profiles'  is null.");
+            var applicationDbContext = _context.Profiles.Include(p => p.User);
+            return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: ProfileEntities/Details/5
@@ -36,6 +35,7 @@ namespace WebApplication3.Controllers
             }
 
             var profileEntity = await _context.Profiles
+                .Include(p => p.User)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (profileEntity == null)
             {
@@ -48,6 +48,7 @@ namespace WebApplication3.Controllers
         // GET: ProfileEntities/Create
         public IActionResult Create()
         {
+            ViewData["UserId"] = new SelectList(_context.User, "Id", "Id");
             return View();
         }
 
@@ -56,7 +57,7 @@ namespace WebApplication3.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Surname,DateOfBirth,PhoneNumber,Blood")] ProfileEntity profileEntity)
+        public async Task<IActionResult> Create([Bind("Id,Name,Surname,DateOfBirth,Blood,UserId")] ProfileEntity profileEntity)
         {
             if (ModelState.IsValid)
             {
@@ -65,6 +66,7 @@ namespace WebApplication3.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", profileEntity.UserId);
             return View(profileEntity);
         }
 
@@ -81,6 +83,7 @@ namespace WebApplication3.Controllers
             {
                 return NotFound();
             }
+            ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", profileEntity.UserId);
             return View(profileEntity);
         }
 
@@ -89,7 +92,7 @@ namespace WebApplication3.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name,Surname,DateOfBirth,PhoneNumber,Blood")] ProfileEntity profileEntity)
+        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name,Surname,DateOfBirth,Blood,UserId")] ProfileEntity profileEntity)
         {
             if (id != profileEntity.Id)
             {
@@ -116,6 +119,7 @@ namespace WebApplication3.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", profileEntity.UserId);
             return View(profileEntity);
         }
 
@@ -128,6 +132,7 @@ namespace WebApplication3.Controllers
             }
 
             var profileEntity = await _context.Profiles
+                .Include(p => p.User)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (profileEntity == null)
             {

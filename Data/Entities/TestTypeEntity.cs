@@ -1,7 +1,12 @@
-﻿namespace WebApplication3.Data.Entities
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+
+namespace WebApplication3.Data.Entities
 {
     public class TestTypeEntity
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
         public string Name { get; set; } = "";      
         public string Description { get; set; } = "";
