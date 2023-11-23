@@ -46,8 +46,10 @@ namespace WebApplication3.Controllers
         }
 
         // GET: ProfileEntities/Create
+        [HttpGet]
         public IActionResult Create()
         {
+
             ViewData["UserId"] = new SelectList(_context.User, "Id", "Id");
             return View();
         }

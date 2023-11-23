@@ -9,7 +9,7 @@ namespace WebApplication3.Data.Entities
         public string Surname { get; set; } = "";
         public DateTime DateOfBirth { get; set; }
         public BloodType Blood { get; set; }
-        public UserEntity User { get; set; }
+        public UserEntity? User { get; set; }
         public string UserId { get; set; }
     }
     public enum BloodType
