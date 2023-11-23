@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -49,8 +50,8 @@ namespace WebApplication3.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-
-            ViewData["UserId"] = new SelectList(_context.User, "Id", "Id");
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            ViewData["UserId"] = userId;
             return View();
         }
 
@@ -85,7 +86,8 @@ namespace WebApplication3.Controllers
             {
                 return NotFound();
             }
-            ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", profileEntity.UserId);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            ViewData["UserId"] = userId;
             return View(profileEntity);
         }
 
@@ -121,7 +123,8 @@ namespace WebApplication3.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", profileEntity.UserId);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            ViewData["UserId"] = userId;
             return View(profileEntity);
         }
 
