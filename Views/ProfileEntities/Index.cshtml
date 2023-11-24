@@ -1,5 +1,5 @@
 ﻿@model WebApplication3.Models.ViewModel.ProfileVm
-
+@using WebApplication3.Helpers
 @{
     ViewData["Title"] = "Index";
 }
@@ -38,10 +38,10 @@
                 @Model.Surname
             </td>
             <td>
-                @Model.DateOfBirth
+                @Model.DateOfBirth.ToShortDateString()
             </td>
             <td>
-                @Model.Blood
+                @(Model.Blood.GetDisplayName())
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
