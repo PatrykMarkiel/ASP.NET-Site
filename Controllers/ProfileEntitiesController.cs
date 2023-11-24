@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿
 using System.Security.Claims;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebApplication3.Data;
 using WebApplication3.Data.Entities;
+using WebApplication3.Models.ViewModel;
 
 namespace WebApplication3.Controllers
 {
+    [Authorize]
     public class ProfileEntitiesController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -21,30 +21,45 @@ namespace WebApplication3.Controllers
         }
 
         // GET: ProfileEntities
-        public async Task<IActionResult> Index()
+        [HttpGet]
+        public IActionResult Index()
         {
-            var applicationDbContext = _context.Profiles.Include(p => p.User);
-            return View(await applicationDbContext.ToListAsync());
-        }
+            var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
+            var userProfile = _context.Profiles.FirstOrDefault(p => p.UserId == user.Id);
 
+            if (userProfile != null)
+            {
+                var profileInformation = new ProfileVm
+                {
+                    Name = userProfile.Name,
+                    Surname = userProfile.Surname,
+                    DateOfBirth = userProfile.DateOfBirth,
+                    Blood = userProfile.Blood
+                };
+
+                return View(profileInformation);
+            }
+            else
+            {
+                return View();
+            }
+        }
         // GET: ProfileEntities/Details/5
-        public async Task<IActionResult> Details(Guid? id)
+        [HttpGet]
+        public IActionResult Details()
         {
-            if (id == null || _context.Profiles == null)
+            var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
+            var userProfile = _context.Profiles.FirstOrDefault(p => p.UserId == user.Id);
+            var ProfileInformation = new ProfileVm
             {
-                return NotFound();
-            }
-
-            var profileEntity = await _context.Profiles
-                .Include(p => p.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (profileEntity == null)
-            {
-                return NotFound();
-            }
-
-            return View(profileEntity);
+                Name = userProfile.Name,
+                Surname = userProfile.Surname,
+                DateOfBirth = userProfile.DateOfBirth,
+                Blood = userProfile.Blood
+            };
+            return View(ProfileInformation);
         }
+
 
         // GET: ProfileEntities/Create
         [HttpGet]
@@ -56,119 +71,123 @@ namespace WebApplication3.Controllers
         }
 
         // POST: ProfileEntities/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Surname,DateOfBirth,Blood,UserId")] ProfileEntity profileEntity)
+        public IActionResult Create(ProfileVm model)
         {
             if (ModelState.IsValid)
             {
-                profileEntity.Id = Guid.NewGuid();
-                _context.Add(profileEntity);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                var profileEntity = new ProfileEntity
+                {
+                    Id = Guid.NewGuid(),
+                    Name = model.Name,
+                    Surname = model.Surname,
+                    DateOfBirth = model.DateOfBirth,
+                    Blood = model.Blood,
+                    UserId = model.UserId
+                };
+
+                _context.Profiles.Add(profileEntity);
+                _context.SaveChanges();
+
+                return RedirectToAction("Index", "ProfileEntities");
             }
-            ViewData["UserId"] = new SelectList(_context.User, "Id", "Id", profileEntity.UserId);
-            return View(profileEntity);
+
+            return View(model);
         }
 
-        // GET: ProfileEntities/Edit/5
-        public async Task<IActionResult> Edit(Guid? id)
+        // GET: Profile/Edit
+        public IActionResult Edit()
         {
-            if (id == null || _context.Profiles == null)
-            {
-                return NotFound();
-            }
+            var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
+            var userProfile = _context.Profiles.FirstOrDefault(p => p.UserId == user.Id);
 
-            var profileEntity = await _context.Profiles.FindAsync(id);
-            if (profileEntity == null)
+            var profileVm = new ProfileVm
             {
-                return NotFound();
-            }
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            ViewData["UserId"] = userId;
-            return View(profileEntity);
+                Id = userProfile.Id,
+                Name = userProfile.Name,
+                Surname = userProfile.Surname,
+                DateOfBirth = userProfile.DateOfBirth,
+                Blood = userProfile.Blood,
+                UserId = userProfile.UserId
+            };
+
+            return View(profileVm);
         }
 
-        // POST: ProfileEntities/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: Profile/Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name,Surname,DateOfBirth,Blood,UserId")] ProfileEntity profileEntity)
+        public IActionResult Edit(ProfileVm model)
         {
-            if (id != profileEntity.Id)
-            {
-                return NotFound();
-            }
+            var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
+            var userProfile = _context.Profiles.FirstOrDefault(p => p.UserId == user.Id);
+            userProfile.Name = model.Name;
+            userProfile.Surname = model.Surname;
+            userProfile.DateOfBirth = model.DateOfBirth;
+            userProfile.Blood = model.Blood;
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(profileEntity);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ProfileEntityExists(profileEntity.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            ViewData["UserId"] = userId;
-            return View(profileEntity);
+            _context.Profiles.Update(userProfile);
+            _context.SaveChanges(); // Zapisanie zmian w bazie danych
+
+            return RedirectToAction("Index", "ProfileEntities"); // Przekierowanie po zapisie
+
         }
 
-        // GET: ProfileEntities/Delete/5
-        public async Task<IActionResult> Delete(Guid? id)
+
+        // GET: Profile/Delete
+        public IActionResult Delete()
         {
-            if (id == null || _context.Profiles == null)
+            var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
+
+            if (user == null)
             {
-                return NotFound();
+                return NotFound(); // Użytkownik nie znaleziony
             }
 
-            var profileEntity = await _context.Profiles
-                .Include(p => p.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (profileEntity == null)
+            var userProfile = _context.Profiles.FirstOrDefault(p => p.UserId == user.Id);
+
+            if (userProfile == null)
             {
-                return NotFound();
+                return NotFound(); // Profil użytkownika nie znaleziony
             }
 
-            return View(profileEntity);
+            var profileVm = new ProfileVm
+            {
+                Id = userProfile.Id,
+                Name = userProfile.Name,
+                Surname = userProfile.Surname,
+                DateOfBirth = userProfile.DateOfBirth,
+                Blood = userProfile.Blood,
+                UserId = userProfile.UserId
+            };
+
+            return View(profileVm);
         }
 
-        // POST: ProfileEntities/Delete/5
+        // POST: Profile/Delete
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(Guid id)
+        public IActionResult DeleteConfirmed()
         {
-            if (_context.Profiles == null)
-            {
-                return Problem("Entity set 'ApplicationDbContext.Profiles'  is null.");
-            }
-            var profileEntity = await _context.Profiles.FindAsync(id);
-            if (profileEntity != null)
-            {
-                _context.Profiles.Remove(profileEntity);
-            }
-            
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+            var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
 
-        private bool ProfileEntityExists(Guid id)
-        {
-          return (_context.Profiles?.Any(e => e.Id == id)).GetValueOrDefault();
+            if (user == null)
+            {
+                return NotFound(); // Użytkownik nie znaleziony
+            }
+
+            var userProfile = _context.Profiles.FirstOrDefault(p => p.UserId == user.Id);
+
+            if (userProfile == null)
+            {
+                return NotFound(); // Profil użytkownika nie znaleziony
+            }
+
+            _context.Profiles.Remove(userProfile);
+            _context.SaveChanges(); // Zapisanie zmian w bazie danych
+
+            return RedirectToAction("Index", "ProfileEntities"); // Przekierowanie po usunięciu profilu
         }
     }
 }

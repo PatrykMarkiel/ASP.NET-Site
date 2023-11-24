@@ -1,4 +1,4 @@
-﻿@model IEnumerable<WebApplication3.Data.Entities.ProfileEntity>
+﻿@model WebApplication3.Models.ViewModel.ProfileVm
 
 @{
     ViewData["Title"] = "Index";
@@ -24,34 +24,32 @@
             <th>
                 @Html.DisplayNameFor(model => model.Blood)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.User)
-            </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+ @if (Model != null)
+{
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Name)
+                @Model.Name
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Surname)
+                @Model.Surname
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.DateOfBirth)
+                @Model.DateOfBirth
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Blood)
+                @Model.Blood
             </td>
-
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@Model.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@Model.Id">Delete</a>
             </td>
         </tr>
 }
+
     </tbody>
 </table>

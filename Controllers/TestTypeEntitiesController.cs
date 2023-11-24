@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using WebApplication3.Data.Entities;
 
 namespace WebApplication3.Controllers
 {
+    [Authorize]
     public class TestTypeEntitiesController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -23,8 +25,8 @@ namespace WebApplication3.Controllers
         public async Task<IActionResult> Index()
         {
               return _context.TestType != null ? 
-                          View(await _context.TestType.ToListAsync()) :
-                          Problem("Entity set 'ApplicationDbContext.TestType'  is null.");
+              View(await _context.TestType.ToListAsync()) :
+               Problem("Entity set 'ApplicationDbContext.TestType'  is null.");
         }
 
         // GET: TestTypeEntities/Details/5
