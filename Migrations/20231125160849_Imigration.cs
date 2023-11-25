@@ -185,7 +185,8 @@ namespace WebApplication3.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Time = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    DeviceName = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -208,7 +209,7 @@ namespace WebApplication3.Migrations
                     comment = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TreatmentTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     InsertionTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Value = table.Column<double>(type: "float", nullable: false),
+                    Price = table.Column<double>(type: "float", nullable: false),
                     BodyPartName = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },

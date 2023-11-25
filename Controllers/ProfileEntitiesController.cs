@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using WebApplication3.Data;
 using WebApplication3.Data.Entities;
 using WebApplication3.Models.ViewModel;
+using WebApplication3.Repositories;
 
 namespace WebApplication3.Controllers
 {
@@ -19,53 +20,33 @@ namespace WebApplication3.Controllers
         {
             _context = context;
         }
-
-        // GET: ProfileEntities
-        [HttpGet]
-        public IActionResult Index()
-        {
-            var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
-            var userProfile = _context.Profiles.FirstOrDefault(p => p.UserId == user.Id);
-
-            if (userProfile != null)
-            {
-                var profileInformation = new ProfileVm
-                {
-                    Name = userProfile.Name,
-                    Surname = userProfile.Surname,
-                    DateOfBirth = userProfile.DateOfBirth,
-                    Blood = userProfile.Blood
-                };
-
-                return View(profileInformation);
-            }
-            else
-            {
-                return View();
-            }
-        }
         // GET: ProfileEntities/Details/5
         [HttpGet]
         public IActionResult Details()
         {
             var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
             var userProfile = _context.Profiles.FirstOrDefault(p => p.UserId == user.Id);
-            var ProfileInformation = new ProfileVm
+            if (userProfile != null)
             {
-                Name = userProfile.Name,
-                Surname = userProfile.Surname,
-                DateOfBirth = userProfile.DateOfBirth,
-                Blood = userProfile.Blood
-            };
-            return View(ProfileInformation);
+                var ProfileInformation = new ProfileVm
+                {
+                    Name = userProfile.Name,
+                    Surname = userProfile.Surname,
+                    DateOfBirth = userProfile.DateOfBirth,
+                    Blood = userProfile.Blood
+                };
+                return View(ProfileInformation);
+            }
+            return View();
         }
 
-
-        // GET: ProfileEntities/Create
+        // Get: ProfileEntities/Create
         [HttpGet]
         public IActionResult Create()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var existingProfile = _context.Profiles.FirstOrDefault(p => p.UserId == userId);
+
             ViewData["UserId"] = userId;
             return View();
         }
@@ -90,14 +71,14 @@ namespace WebApplication3.Controllers
                 _context.Profiles.Add(profileEntity);
                 _context.SaveChanges();
 
-                return RedirectToAction("Index", "ProfileEntities");
+                return RedirectToAction("Details", "ProfileEntities");
             }
 
             return View(model);
         }
 
-        // GET: Profile/Edit
-        public IActionResult Edit()
+// GET: Profile/Edit
+public IActionResult Edit()
         {
             var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
             var userProfile = _context.Profiles.FirstOrDefault(p => p.UserId == user.Id);
@@ -128,9 +109,9 @@ namespace WebApplication3.Controllers
             userProfile.Blood = model.Blood;
 
             _context.Profiles.Update(userProfile);
-            _context.SaveChanges(); // Zapisanie zmian w bazie danych
+            _context.SaveChanges(); 
 
-            return RedirectToAction("Index", "ProfileEntities"); // Przekierowanie po zapisie
+            return RedirectToAction("Details", "ProfileEntities"); 
 
         }
 
@@ -140,17 +121,8 @@ namespace WebApplication3.Controllers
         {
             var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
 
-            if (user == null)
-            {
-                return NotFound(); // Użytkownik nie znaleziony
-            }
 
             var userProfile = _context.Profiles.FirstOrDefault(p => p.UserId == user.Id);
-
-            if (userProfile == null)
-            {
-                return NotFound(); // Profil użytkownika nie znaleziony
-            }
 
             var profileVm = new ProfileVm
             {
@@ -172,22 +144,13 @@ namespace WebApplication3.Controllers
         {
             var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
 
-            if (user == null)
-            {
-                return NotFound(); // Użytkownik nie znaleziony
-            }
-
             var userProfile = _context.Profiles.FirstOrDefault(p => p.UserId == user.Id);
 
-            if (userProfile == null)
-            {
-                return NotFound(); // Profil użytkownika nie znaleziony
-            }
 
             _context.Profiles.Remove(userProfile);
-            _context.SaveChanges(); // Zapisanie zmian w bazie danych
+            _context.SaveChanges(); 
 
-            return RedirectToAction("Index", "ProfileEntities"); // Przekierowanie po usunięciu profilu
+            return RedirectToAction("Details", "ProfileEntities"); 
         }
     }
 }

@@ -35,6 +35,7 @@ namespace WebApplication3.Data
            .HasMany(n => n.Device)
            .WithOne(n => n.User)
            .HasForeignKey(n => n.UserId);
+
         }
 
     }

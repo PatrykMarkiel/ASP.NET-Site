@@ -10,10 +10,8 @@ namespace WebApplication3.ViewModels
         public string MeasurementComment { get; set; }
         public DateTime MeasurementTreatmentTime { get; set; }
         public DateTime MeasurementInsertionTime { get; set; }
-        public double MeasurementValue { get; set; }
+        public double MeasurementPrice { get; set; }
         public BodyPart MeasurementBodyPartName { get; set; }
-        public string MeasurementUserId { get; set; }
-
         public Guid TestTypeId { get; set; }
         public string TestTypeName { get; set; }
         public string TestTypeDescription { get; set; }
@@ -22,5 +20,6 @@ namespace WebApplication3.ViewModels
         public double TestTypeValue { get; set; }
         public double TestTypeValueTemplate { get; set; }
         public TestName TestTypeMeasurementName { get; set; }
+        public string UserId { get; set; }
     }
 }

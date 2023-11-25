@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebApplication3.Data;
 using WebApplication3.Data.Entities;
+using WebApplication3.ViewModels;
 
 namespace WebApplication3.Controllers
 {
@@ -19,12 +20,30 @@ namespace WebApplication3.Controllers
             _context = context;
         }
 
-        // GET: MeasurmentEntities
-        public async Task<IActionResult> Index()
+        [HttpGet]
+        public IActionResult Index()
         {
-              return _context.Measurement != null ? 
-                          View(await _context.Measurement.ToListAsync()) :
-                          Problem("Entity set 'ApplicationDbContext.Measurement'  is null.");
+            var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
+            var Meausrement = _context.Measurement.FirstOrDefault(p => p.UserId == user.Id);
+
+            // Pobranie wszystkich pomiarów dla konkretnego użytkownika na podstawie profilu
+            List<MeasurementVm> userMeasurement = _context.Measurement
+              .Where(m => m.UserId == Meausrement.UserId)
+              .Select(m => new MeasurementVm
+              {
+                  MeasurementId = m.Id,
+                  MeasurementName = m.Name,
+                  MeasurementComment = m.comment,
+                  MeasurementTreatmentTime = m.TreatmentTime,
+                  MeasurementInsertionTime = DateTime.Now,
+                  MeasurementBodyPartName = m.BodyPartName,
+                  MeasurementPrice = m.Price,
+
+
+              })
+                .ToList();
+
+            return View(userMeasurement);
         }
         // GET: MeasurmentEntities/Details/5
         public async Task<IActionResult> Details(int? id)

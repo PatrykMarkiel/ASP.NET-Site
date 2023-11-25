@@ -1,15 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebApplication3.Data;
 using WebApplication3.Data.Entities;
+using WebApplication3.Models.ViewModel;
+using WebApplication3.ViewModels;
 
 namespace WebApplication3.Controllers
 {
+    [Authorize]
     public class DeviceEntitiesController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -18,147 +23,154 @@ namespace WebApplication3.Controllers
         {
             _context = context;
         }
-
         // GET: DeviceEntities
-        public async Task<IActionResult> Index()
+        [HttpGet]
+        public IActionResult Index()
         {
-              return _context.Device != null ? 
-                          View(await _context.Device.ToListAsync()) :
-                          Problem("Entity set 'ApplicationDbContext.Device'  is null.");
-        }
+            var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
+            var userDevices = _context.Device.Where(p => p.UserId == user.Id).ToList();
 
+            if (userDevices.Any())
+            {
+                List<DeviceVm> userDevicesInformation = userDevices.Select(device => new DeviceVm
+                {
+                    Id = device.Id,
+                    Name = device.Name,
+                    Description = device.Description,
+                    Time = device.Time,
+                    UserId = device.UserId,
+                    DeviceName = device.DeviceName
+                }).ToList();
+
+                return View(userDevicesInformation);
+            }
+            else
+            {
+                return View();
+            }
+        }
         // GET: DeviceEntities/Details/5
-        public async Task<IActionResult> Details(Guid? id)
+        [HttpGet]
+        public IActionResult Details()
         {
-            if (id == null || _context.Device == null)
+            var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
+            var device = _context.Device.FirstOrDefault(p => p.UserId == user.Id);
+            var DeviceInfo = new DeviceVm
             {
-                return NotFound();
-            }
-
-            var deviceEntity = await _context.Device
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (deviceEntity == null)
-            {
-                return NotFound();
-            }
-
-            return View(deviceEntity);
+                Id = device.Id,
+                Name = device.Name,
+                Description = device.Description,
+                Time = device.Time,
+                UserId = device.UserId,
+                DeviceName = device.DeviceName
+            };
+            return View(DeviceInfo);
         }
-
-        // GET: DeviceEntities/Create
+        // Get: DeviceEntities/Create
+        [HttpGet]
         public IActionResult Create()
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            ViewData["UserId"] = userId;
             return View();
         }
 
         // POST: DeviceEntities/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Description,Time")] DeviceEntity deviceEntity)
+        public IActionResult Create(DeviceVm model)
         {
             if (ModelState.IsValid)
             {
-                deviceEntity.Id = Guid.NewGuid();
-                _context.Add(deviceEntity);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                var DeviceEntity = new DeviceEntity
+                {
+                    Id = Guid.NewGuid(),
+                    Name = model.Name,
+                    Description = model.Description,
+                    Time = DateTime.Now,
+                    UserId = model.UserId,
+                    DeviceName = model.DeviceName
+                };
+
+                _context.Device.Add(DeviceEntity);
+                _context.SaveChanges();
+
+                return RedirectToAction("Index", "DeviceEntities");
             }
-            return View(deviceEntity);
+            // Pobierz wszystkie błędy walidacji z ModelState
+            //var errors = ModelState.Values.SelectMany(v => v.Errors);
+            //return View("Create", model);
+
+            return View(model);
         }
 
-        // GET: DeviceEntities/Edit/5
-        public async Task<IActionResult> Edit(Guid? id)
+        // Get: DeviceEntities/Edit
+        [HttpGet]
+        public IActionResult Edit()
         {
-            if (id == null || _context.Device == null)
+            var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
+            var Device = _context.Device.FirstOrDefault(p => p.UserId == user.Id);
+            var deviceVm = new DeviceVm
             {
-                return NotFound();
-            }
+                Id = Device.Id,
+                Name = Device.Name,
+                Description = Device.Description,
+                DeviceName =Device.DeviceName
 
-            var deviceEntity = await _context.Device.FindAsync(id);
-            if (deviceEntity == null)
-            {
-                return NotFound();
-            }
-            return View(deviceEntity);
+            };
+
+            return View(deviceVm);
         }
-
-        // POST: DeviceEntities/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: Device/Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name,Description,Time")] DeviceEntity deviceEntity)
+        public IActionResult Edit(DeviceVm model)
         {
-            if (id != deviceEntity.Id)
-            {
-                return NotFound();
-            }
+            var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
+            var Device = _context.Device.FirstOrDefault(p => p.UserId == user.Id);
+            Device.Id = model.Id;
+            Device.Name = model.Name;
+            Device.Description = model.Description;
+            Device.DeviceName = model.DeviceName;
 
-            if (ModelState.IsValid)
+            _context.Device.Update(Device);
+            _context.SaveChanges();
+
+            return RedirectToAction("Index", "DeviceEntities");
+
+        }
+        // Get: device/Delete
+        [HttpGet]
+        public IActionResult Delete()
+        {
+            var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
+            var Device = _context.Device.FirstOrDefault(p => p.UserId == user.Id);
+
+            var DeviceVm = new DeviceVm
             {
-                try
-                {
-                    _context.Update(deviceEntity);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!DeviceEntityExists(deviceEntity.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(deviceEntity);
+                Name = Device.Name,
+                Description = Device.Description,
+                UserId = Device.UserId,
+                DeviceName = Device.DeviceName
+        };
+
+            return View(DeviceVm);
         }
 
-        // GET: DeviceEntities/Delete/5
-        public async Task<IActionResult> Delete(Guid? id)
-        {
-            if (id == null || _context.Device == null)
-            {
-                return NotFound();
-            }
-
-            var deviceEntity = await _context.Device
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (deviceEntity == null)
-            {
-                return NotFound();
-            }
-
-            return View(deviceEntity);
-        }
-
-        // POST: DeviceEntities/Delete/5
+        // POST: Device/Delete
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(Guid id)
+        public IActionResult DeleteConfirmed()
         {
-            if (_context.Device == null)
-            {
-                return Problem("Entity set 'ApplicationDbContext.Device'  is null.");
-            }
-            var deviceEntity = await _context.Device.FindAsync(id);
-            if (deviceEntity != null)
-            {
-                _context.Device.Remove(deviceEntity);
-            }
-            
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+            var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
 
-        private bool DeviceEntityExists(Guid id)
-        {
-          return (_context.Device?.Any(e => e.Id == id)).GetValueOrDefault();
+            var device = _context.Device.FirstOrDefault(p => p.UserId == user.Id);
+
+
+            _context.Device.Remove(device);
+            _context.SaveChanges();
+
+            return RedirectToAction("Index", "DeviceEntities");
         }
     }
 }

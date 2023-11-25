@@ -16,7 +16,7 @@ namespace WebApplication3.Data.Entities
         public double ValueTemplate { get; set; }
         public TestName MeasurementName { get; set; }
 
-}
+    }
 
     public enum TestName
     {

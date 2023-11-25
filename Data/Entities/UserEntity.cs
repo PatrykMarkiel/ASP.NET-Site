@@ -11,7 +11,6 @@ namespace WebApplication3.Data.Entities
         public ICollection<MeasurementEntity> Measurement { get; set; }
         public ICollection<DeviceEntity> Device { get; set; }
 
-
     }
     public enum UserType
     {
