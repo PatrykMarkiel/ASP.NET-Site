@@ -1,48 +1,134 @@
-﻿@model WebApplication3.Data.Entities.MeasurementEntity
+﻿@model WebApplication3.Models.ViewModel.MeasurementVm
 
 @{
     ViewData["Title"] = "Create";
 }
 
-<h1>Create</h1>
-
-<h4>MeasurmentEntity</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Comment" class="control-label"></label>
-                <input asp-for="Comment" class="form-control" />
-                <span asp-validation-for="Comment" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TreatmentTime" class="control-label"></label>
-                <input asp-for="TreatmentTime" class="form-control" />
-                <span asp-validation-for="TreatmentTime" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="InsertionTime" class="control-label"></label>
-                <input asp-for="InsertionTime" class="form-control" />
-                <span asp-validation-for="InsertionTime" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="MeasurementName"></label>
+        <select asp-for="MeasurementName" class="form-control" id="measurementName">
+            @foreach (var value in Enum.GetValues(typeof(WebApplication3.Data.Entities.MeasurementName)))
+            {
+                <option value="@value.ToString()">@Enum.GetName(typeof(WebApplication3.Data.Entities.MeasurementName), value)</option>
+            }
+        </select>
+        <span asp-validation-for="MeasurementName" class="text-danger"></span>
     </div>
+
+    <div class="form-group" id="bodyPartField">
+        <label asp-for="BodyPart"></label>
+        <select asp-for="BodyPart" class="form-control">
+            @foreach (var value in Enum.GetValues(typeof(WebApplication3.Data.Entities.BodyPart)))
+            {
+                <option value="@value.ToString()">@Enum.GetName(typeof(WebApplication3.Data.Entities.BodyPart), value)</option>
+            }
+        </select>
+        <span asp-validation-for="BodyPart" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Comment"></label>
+        <textarea asp-for="Comment" class="form-control"></textarea>
+        <span asp-validation-for="Comment" class="text-danger"></span>
+    </div>
+    <div class="form-group" id="valueField">
+        <label asp-for="Value" id="valueLabel"></label>
+        <input asp-for="Value" class="form-control" />
+        <span asp-validation-for="Value" class="text-danger"></span>
+    </div>
+
+    <div class="form-group" id="ValueUnitField">
+        <label asp-for="ValueUnit" id="ValueUnitLabel"></label>
+        <input asp-for="ValueUnit" class="form-control" />
+        <span asp-validation-for="ValueUnit" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="TreatmentTime"></label>
+        <input asp-for="TreatmentTime" type="datetime-local" class="form-control" />
+        <span asp-validation-for="TreatmentTime" class="text-danger"></span>
+    </div>
+
+
+    <div class="form-group">
+        <label asp-for="SafeRange"></label>
+        <input asp-for="SafeRange" class="form-control" type="date" />
+        <span asp-validation-for="SafeRange" class="text-danger"></span>
+    </div>
+        <input type="hidden" asp-for="UserId" value="@ViewData["UserId"]">
+    <br>
+    <div class="form-group">
+        <input type="submit" value="Create" class="btn btn-primary" />
+        <a asp-action="Index">Back to List</a>
+
+    </div>
+        </form>
+
+    </div>
+
+
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var measurementName = document.getElementById("measurementName");
+            var bodyPartField = document.getElementById("bodyPartField");
+            var valueField = document.getElementById("valueField");
+            var ValueUnitField = document.getElementById("ValueUnitField");
+
+            bodyPartField.style.display = "none";
+            valueField.style.display = "block";
+            ValueUnitField.style.display = "block";
+
+            measurementName.addEventListener("change", function () {
+                if (measurementName.value === "Observation") {
+                    bodyPartField.style.display = "block";
+                    valueField.style.display = "none";
+                    ValueUnitField.style.display = "none";
+                } else {
+                    bodyPartField.style.display = "none";
+                    valueField.style.display = "block";
+                    ValueUnitField.style.display = "block";
+
+                    var valueUnitLabel = document.getElementById("ValueUnitLabel");
+                    var valueUnitInput = document.getElementById("ValueUnit");
+                    switch (measurementName.value) {
+                        case "Pulse":
+                            valueUnitLabel.innerText = "Pulse Unit:";
+                            valueUnitInput.value = "bpm"; 
+                            valueUnitInput.setAttribute("data-value", "1"); 
+                            break;
+                        case "Height":
+                            valueUnitLabel.innerText = "Height Unit:";
+                            valueUnitInput.value = "cm"; 
+                            valueUnitInput.setAttribute("data-value", "2"); 
+                            break;
+                        case "Weight":
+                            valueUnitLabel.innerText = "Weight Unit:";
+                            valueUnitInput.value = "kg"; 
+                            valueUnitInput.setAttribute("data-value", "3"); 
+                            break;
+                        case "Saturation":
+                            valueUnitLabel.innerText = "Saturation Unit:";
+                            valueUnitInput.value = "%"; 
+                            valueUnitInput.setAttribute("data-value", "4"); 
+                            break;
+                        case "BodyMeasure":
+                            valueUnitLabel.innerText = "Body Measure Unit:";
+                            valueUnitInput.value = "cm"; 
+                            valueUnitInput.setAttribute("data-value", "5"); 
+                            break;
+                        default:
+                            valueUnitLabel.innerText = "Value Unit:";
+                            valueUnitInput.value = "";
+                            break;
+                    }
+
+                }
+            });
+        });
+    </script>
 }

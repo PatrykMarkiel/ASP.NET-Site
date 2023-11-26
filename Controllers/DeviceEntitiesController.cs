@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore;
 using WebApplication3.Data;
 using WebApplication3.Data.Entities;
 using WebApplication3.Models.ViewModel;
-using WebApplication3.ViewModels;
 
 namespace WebApplication3.Controllers
 {

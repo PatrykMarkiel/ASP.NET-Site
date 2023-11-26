@@ -12,8 +12,8 @@ using WebApplication3.Data;
 namespace WebApplication3.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231126001046_Migration1")]
-    partial class Migration1
+    [Migration("20231126135643_Test1")]
+    partial class Test1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -199,7 +199,7 @@ namespace WebApplication3.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("BodyPartName")
+                    b.Property<int>("BodyPart")
                         .HasColumnType("int");
 
                     b.Property<string>("Comment")
@@ -216,13 +216,6 @@ namespace WebApplication3.Migrations
                     b.Property<int>("MeasurementName")
                         .HasColumnType("int");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<double>("Price")
-                        .HasColumnType("float");
-
                     b.Property<DateTime>("SafeRange")
                         .HasColumnType("datetime2");
 
@@ -236,8 +229,8 @@ namespace WebApplication3.Migrations
                     b.Property<double>("Value")
                         .HasColumnType("float");
 
-                    b.Property<double>("ValueTemplate")
-                        .HasColumnType("float");
+                    b.Property<int>("ValueUnit")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

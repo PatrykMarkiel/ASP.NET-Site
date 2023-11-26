@@ -1,4 +1,4 @@
-﻿@model WebApplication3.Data.Entities.MeasurementEntity
+﻿@model WebApplication3.Models.ViewModel.MeasurementVm
 
 @{
     ViewData["Title"] = "Edit";
@@ -13,11 +13,6 @@
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
             <div class="form-group">
                 <label asp-for="Comment" class="control-label"></label>
                 <input asp-for="Comment" class="form-control" />

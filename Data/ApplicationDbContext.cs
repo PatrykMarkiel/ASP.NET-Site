@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection.Emit;
 using WebApplication3.Data.Entities;
-
+using WebApplication3.Models.ViewModel;
 namespace WebApplication3.Data
 {
         public class ApplicationDbContext : IdentityDbContext<UserEntity>

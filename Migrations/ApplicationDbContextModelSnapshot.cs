@@ -196,7 +196,7 @@ namespace WebApplication3.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("BodyPartName")
+                    b.Property<int>("BodyPart")
                         .HasColumnType("int");
 
                     b.Property<string>("Comment")
@@ -213,13 +213,6 @@ namespace WebApplication3.Migrations
                     b.Property<int>("MeasurementName")
                         .HasColumnType("int");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<double>("Price")
-                        .HasColumnType("float");
-
                     b.Property<DateTime>("SafeRange")
                         .HasColumnType("datetime2");
 
@@ -233,8 +226,8 @@ namespace WebApplication3.Migrations
                     b.Property<double>("Value")
                         .HasColumnType("float");
 
-                    b.Property<double>("ValueTemplate")
-                        .HasColumnType("float");
+                    b.Property<int>("ValueUnit")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

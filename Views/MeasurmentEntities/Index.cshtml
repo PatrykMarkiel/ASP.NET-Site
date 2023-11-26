@@ -1,5 +1,4 @@
-﻿@model List<WebApplication3.ViewModels.MeasurementVm>
-
+﻿@model List<WebApplication3.Models.ViewModel.MeasurementVm>
 @{
     ViewData["Title"] = "Measurement Entities";
 }
@@ -24,9 +23,6 @@
             </th>
             <th>
                 Measurement Insertion Time
-            </th>
-            <th>
-                Measurement Price
             </th>
             <th>
                 Measurement Body Part Name
@@ -55,10 +51,7 @@
                         @Html.DisplayFor(modelItem => item.InsertionTime)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.Price)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.BodyPartName)
+                        @Html.DisplayFor(modelItem => item.BodyPart)
                     </td>
 
                     <!-- Dodaj tutaj odpowiednie wyświetlanie danych związanych z TestTypeEntity -->

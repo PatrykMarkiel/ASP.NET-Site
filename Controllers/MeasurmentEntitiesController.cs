@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using WebApplication3.Data;
 using WebApplication3.Data.Entities;
 using WebApplication3.Models.ViewModel;
-using WebApplication3.ViewModels;
 
 namespace WebApplication3.Controllers
 {
@@ -35,16 +35,14 @@ namespace WebApplication3.Controllers
                 List<MeasurementVm> modelInformation = measurementEntities.Select(measurement => new MeasurementVm
                 {
                     Id = measurement.Id,
-                    Name = measurement.Name,
                     Comment = measurement.Comment,
                     Description = measurement.Description,
                     TreatmentTime = measurement.TreatmentTime,
                     InsertionTime = measurement.InsertionTime,
-                    Price = measurement.Price,
-                    BodyPartName = measurement.BodyPartName,
+                    BodyPart = measurement.BodyPart,
                     SafeRange = measurement.SafeRange,
                     Value = measurement.Value,
-                    ValueTemplate = measurement.ValueTemplate,
+                    ValueUnit = measurement.ValueUnit,
                     MeasurementName = measurement.MeasurementName,
                     UserId = measurement.UserId
                 }).ToList();
@@ -57,7 +55,6 @@ namespace WebApplication3.Controllers
             }
         }
         // Get: MeasurementEntities/Create
-        [HttpGet]
         public IActionResult Create()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -67,7 +64,7 @@ namespace WebApplication3.Controllers
             return View();
         }
 
-        // POST: MeasurementEntities/Create
+        // Post: MeasurementEntities/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(MeasurementVm model)
@@ -77,52 +74,64 @@ namespace WebApplication3.Controllers
                 var measurement = new MeasurementEntity
                 {
                     Id = Guid.NewGuid(),
-                    Name = model.Name,
                     Comment = model.Comment,
-                    Value = model.Value,
-                    ValueTemplate = model.ValueTemplate,
-                    Price = model.Price,
                     TreatmentTime = model.TreatmentTime,
                     InsertionTime = DateTime.Now,
                     SafeRange = model.SafeRange,
+                    UserId = model.UserId,
                     MeasurementName = model.MeasurementName,
-                    BodyPartName = model.BodyPartName,
-                    UserId = model.UserId
+                    BodyPart = model.BodyPart 
                 };
+
+                if (model.MeasurementName == MeasurementName.Observation)
+                {
+                    measurement.Value = null; 
+                    measurement.BodyPart = model.BodyPart;
+                }
+                else
+                {
+                    if (model.Value == null)
+                    {
+                        ModelState.AddModelError("Value", "Wartość musi być liczbą.");
+                        return View(model);
+                    }
+
+                    measurement.Value = model.Value.Value;
+                    measurement.ValueUnit = model.ValueUnit.Value; 
+                }
 
                 _context.Measurement.Add(measurement);
                 _context.SaveChanges();
 
-                return RedirectToAction("Details", "MeasurementEntities");
+                return RedirectToAction("Index", "MeasurementEntities");
             }
 
             return View(model);
         }
 
+
         // GET: Measurement/Edit
         public IActionResult Edit(Guid id)
         {
             var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
-            var measurementEntity = _context.Measurement.FirstOrDefault(m => m.Id == id); // Znajdź pomiar do edycji
+            var measurementEntity = _context.Measurement.FirstOrDefault(m => m.Id == id); 
 
             if (measurementEntity == null)
             {
-                return NotFound(); // Jeśli pomiar o podanym Id nie istnieje, zwróć NotFound
+                return NotFound(); 
             }
 
             var measurementVm = new MeasurementVm
             {
                 Id = measurementEntity.Id,
-                Name = measurementEntity.Name,
                 Comment = measurementEntity.Comment,
                 Description = measurementEntity.Description,
                 TreatmentTime = measurementEntity.TreatmentTime,
                 InsertionTime = measurementEntity.InsertionTime,
-                Price = measurementEntity.Price,
-                BodyPartName = measurementEntity.BodyPartName,
+                BodyPart = measurementEntity.BodyPart,
                 SafeRange = measurementEntity.SafeRange,
                 Value = measurementEntity.Value,
-                ValueTemplate = measurementEntity.ValueTemplate,
+                ValueUnit = measurementEntity.ValueUnit,
                 MeasurementName = measurementEntity.MeasurementName,
                 UserId = measurementEntity.UserId
             };
@@ -140,16 +149,14 @@ namespace WebApplication3.Controllers
                 var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
                 var measurementEntity = _context.Measurement.FirstOrDefault(m => m.Id == model.Id); 
 
-                measurementEntity.Name = model.Name;
                 measurementEntity.Comment = model.Comment;
                 measurementEntity.Description = model.Description;
                 measurementEntity.TreatmentTime = model.TreatmentTime;
                 measurementEntity.InsertionTime = model.InsertionTime;
-                measurementEntity.Price = model.Price;
-                measurementEntity.BodyPartName = model.BodyPartName;
+                measurementEntity.BodyPart = model.BodyPart;
                 measurementEntity.SafeRange = model.SafeRange;
                 measurementEntity.Value = model.Value;
-                measurementEntity.ValueTemplate = model.ValueTemplate;
+                measurementEntity.ValueUnit = model.ValueUnit;
                 measurementEntity.MeasurementName = model.MeasurementName;
 
                 _context.SaveChanges(); 
@@ -170,16 +177,14 @@ namespace WebApplication3.Controllers
             var measuremnt = new MeasurementVm
             {
                 Id = Guid.NewGuid(),
-                Name = model.Name,
                 Comment = model.Comment,
                 Value = model.Value,
-                ValueTemplate = model.ValueTemplate,
-                Price = model.Price,
+                ValueUnit = model.ValueUnit,
                 TreatmentTime = model.TreatmentTime,
                 InsertionTime = DateTime.Now,
                 SafeRange = model.SafeRange,
                 MeasurementName = model.MeasurementName,
-                BodyPartName = model.BodyPartName,
+                BodyPart = model.BodyPart,
                 UserId = model.UserId
             };
 
