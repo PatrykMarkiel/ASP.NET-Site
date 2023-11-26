@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebApplication3.Data;
 using WebApplication3.Data.Entities;
+using WebApplication3.Models.ViewModel;
 using WebApplication3.ViewModels;
 
 namespace WebApplication3.Controllers
@@ -20,162 +23,184 @@ namespace WebApplication3.Controllers
             _context = context;
         }
 
+        // GET: MeasuremenEntities
         [HttpGet]
         public IActionResult Index()
         {
             var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
-            var Meausrement = _context.Measurement.FirstOrDefault(p => p.UserId == user.Id);
+            var measurementEntities = _context.Measurement.Where(p => p.UserId == user.Id).ToList();
 
-            // Pobranie wszystkich pomiarów dla konkretnego użytkownika na podstawie profilu
-            List<MeasurementVm> userMeasurement = _context.Measurement
-              .Where(m => m.UserId == Meausrement.UserId)
-              .Select(m => new MeasurementVm
-              {
-                  MeasurementId = m.Id,
-                  MeasurementName = m.Name,
-                  MeasurementComment = m.comment,
-                  MeasurementTreatmentTime = m.TreatmentTime,
-                  MeasurementInsertionTime = DateTime.Now,
-                  MeasurementBodyPartName = m.BodyPartName,
-                  MeasurementPrice = m.Price,
-
-
-              })
-                .ToList();
-
-            return View(userMeasurement);
-        }
-        // GET: MeasurmentEntities/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null || _context.Measurement == null)
+            if (measurementEntities.Any())
             {
-                return NotFound();
-            }
+                List<MeasurementVm> modelInformation = measurementEntities.Select(measurement => new MeasurementVm
+                {
+                    Id = measurement.Id,
+                    Name = measurement.Name,
+                    Comment = measurement.Comment,
+                    Description = measurement.Description,
+                    TreatmentTime = measurement.TreatmentTime,
+                    InsertionTime = measurement.InsertionTime,
+                    Price = measurement.Price,
+                    BodyPartName = measurement.BodyPartName,
+                    SafeRange = measurement.SafeRange,
+                    Value = measurement.Value,
+                    ValueTemplate = measurement.ValueTemplate,
+                    MeasurementName = measurement.MeasurementName,
+                    UserId = measurement.UserId
+                }).ToList();
 
-            var measurmentEntity = await _context.Measurement
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (measurmentEntity == null)
+                return View(modelInformation);
+            }
+            else
             {
-                return NotFound();
+                return View();
             }
-
-            return View(measurmentEntity);
         }
-
-        // GET: MeasurmentEntities/Create
+        // Get: MeasurementEntities/Create
+        [HttpGet]
         public IActionResult Create()
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var measurement = _context.Measurement.FirstOrDefault(p => p.UserId == userId);
+
+            ViewData["UserId"] = userId;
             return View();
         }
 
-        // POST: MeasurmentEntities/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: MeasurementEntities/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,comment,TreatmentTime,InsertionTime,Value")] MeasurementEntity measurmentEntity)
+        public IActionResult Create(MeasurementVm model)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(measurmentEntity);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                var measurement = new MeasurementEntity
+                {
+                    Id = Guid.NewGuid(),
+                    Name = model.Name,
+                    Comment = model.Comment,
+                    Value = model.Value,
+                    ValueTemplate = model.ValueTemplate,
+                    Price = model.Price,
+                    TreatmentTime = model.TreatmentTime,
+                    InsertionTime = DateTime.Now,
+                    SafeRange = model.SafeRange,
+                    MeasurementName = model.MeasurementName,
+                    BodyPartName = model.BodyPartName,
+                    UserId = model.UserId
+                };
+
+                _context.Measurement.Add(measurement);
+                _context.SaveChanges();
+
+                return RedirectToAction("Details", "MeasurementEntities");
             }
-            return View(measurmentEntity);
+
+            return View(model);
         }
 
-        // GET: MeasurmentEntities/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        // GET: Measurement/Edit
+        public IActionResult Edit(Guid id)
         {
-            if (id == null || _context.Measurement == null)
+            var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
+            var measurementEntity = _context.Measurement.FirstOrDefault(m => m.Id == id); // Znajdź pomiar do edycji
+
+            if (measurementEntity == null)
             {
-                return NotFound();
+                return NotFound(); // Jeśli pomiar o podanym Id nie istnieje, zwróć NotFound
             }
 
-            var measurmentEntity = await _context.Measurement.FindAsync(id);
-            if (measurmentEntity == null)
+            var measurementVm = new MeasurementVm
             {
-                return NotFound();
-            }
-            return View(measurmentEntity);
+                Id = measurementEntity.Id,
+                Name = measurementEntity.Name,
+                Comment = measurementEntity.Comment,
+                Description = measurementEntity.Description,
+                TreatmentTime = measurementEntity.TreatmentTime,
+                InsertionTime = measurementEntity.InsertionTime,
+                Price = measurementEntity.Price,
+                BodyPartName = measurementEntity.BodyPartName,
+                SafeRange = measurementEntity.SafeRange,
+                Value = measurementEntity.Value,
+                ValueTemplate = measurementEntity.ValueTemplate,
+                MeasurementName = measurementEntity.MeasurementName,
+                UserId = measurementEntity.UserId
+            };
+
+            return View(measurementVm); 
         }
 
-        // POST: MeasurmentEntities/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: Measurement/Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,comment,TreatmentTime,InsertionTime,Value")] MeasurementEntity measurmentEntity)
+        public IActionResult Edit(MeasurementVm model)
         {
-            if (id != measurmentEntity.Id)
-            {
-                return NotFound();
-            }
-
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(measurmentEntity);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!MeasurmentEntityExists(measurmentEntity.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(measurmentEntity);
-        }
+                var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
+                var measurementEntity = _context.Measurement.FirstOrDefault(m => m.Id == model.Id); 
 
-        // GET: MeasurmentEntities/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+                measurementEntity.Name = model.Name;
+                measurementEntity.Comment = model.Comment;
+                measurementEntity.Description = model.Description;
+                measurementEntity.TreatmentTime = model.TreatmentTime;
+                measurementEntity.InsertionTime = model.InsertionTime;
+                measurementEntity.Price = model.Price;
+                measurementEntity.BodyPartName = model.BodyPartName;
+                measurementEntity.SafeRange = model.SafeRange;
+                measurementEntity.Value = model.Value;
+                measurementEntity.ValueTemplate = model.ValueTemplate;
+                measurementEntity.MeasurementName = model.MeasurementName;
+
+                _context.SaveChanges(); 
+
+                return RedirectToAction("Index", "MeasurementEntites"); 
+            }
+
+            return View(model); 
+        }
+        // GET: Profile/Delete
+        public IActionResult Delete()
         {
-            if (id == null || _context.Measurement == null)
-            {
-                return NotFound();
-            }
+            var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
 
-            var measurmentEntity = await _context.Measurement
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (measurmentEntity == null)
-            {
-                return NotFound();
-            }
 
-            return View(measurmentEntity);
+            var model = _context.Measurement.FirstOrDefault(p => p.UserId == user.Id);
+
+            var measuremnt = new MeasurementVm
+            {
+                Id = Guid.NewGuid(),
+                Name = model.Name,
+                Comment = model.Comment,
+                Value = model.Value,
+                ValueTemplate = model.ValueTemplate,
+                Price = model.Price,
+                TreatmentTime = model.TreatmentTime,
+                InsertionTime = DateTime.Now,
+                SafeRange = model.SafeRange,
+                MeasurementName = model.MeasurementName,
+                BodyPartName = model.BodyPartName,
+                UserId = model.UserId
+            };
+
+            return View(measuremnt);
         }
 
-        // POST: MeasurmentEntities/Delete/5
+        // POST: Profile/Delete
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public IActionResult DeleteConfirmed()
         {
-            if (_context.Measurement == null)
-            {
-                return Problem("Entity set 'ApplicationDbContext.Measurement'  is null.");
-            }
-            var measurmentEntity = await _context.Measurement.FindAsync(id);
-            if (measurmentEntity != null)
-            {
-                _context.Measurement.Remove(measurmentEntity);
-            }
-            
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+            var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
 
-        private bool MeasurmentEntityExists(int id)
-        {
-          return (_context.Measurement?.Any(e => e.Id == id)).GetValueOrDefault();
+            var Measuremnt = _context.Measurement.FirstOrDefault(p => p.UserId == user.Id);
+
+
+            _context.Measurement.Remove(Measuremnt);
+            _context.SaveChanges();
+
+            return RedirectToAction("Details", "ProfileEntities");
         }
+    
     }
 }

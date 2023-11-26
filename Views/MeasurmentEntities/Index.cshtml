@@ -1,27 +1,70 @@
 ﻿@model List<WebApplication3.ViewModels.MeasurementVm>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Measurement Entities";
 }
 
-<h1>Index</h1>
+<h1>Measurement Entities</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+
 <table class="table">
     <thead>
-
+        <tr>
+            <th>
+                Measurement Name
+            </th>
+            <th>
+                Measurement Comment
+            </th>
+            <th>
+                Measurement Treatment Time
+            </th>
+            <th>
+                Measurement Insertion Time
+            </th>
+            <th>
+                Measurement Price
+            </th>
+            <th>
+                Measurement Body Part Name
+            </th>
+            <th>
+                Test Type Name
+            </th>
+        </tr>
     </thead>
     <tbody>
-        @foreach (var measurement in Model)
+ @if (Model != null)
         {
-            <tr>
-                <td>@measurement.MeasurementId</td>
-                <td>@measurement.MeasurementName</td>
-                <td>@measurement.MeasurementComment</td>
-                <!-- ... Dodaj kolejne komórki z danymi w zależności od potrzeb -->
-            </tr>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.MeasurementName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Comment)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TreatmentTime)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.InsertionTime)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Price)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.BodyPartName)
+                    </td>
+
+                    <!-- Dodaj tutaj odpowiednie wyświetlanie danych związanych z TestTypeEntity -->
+                    <!-- np. @Html.DisplayFor(modelItem => item.Description) -->
+                </tr>
+            }
         }
     </tbody>
 </table>

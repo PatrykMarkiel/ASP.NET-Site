@@ -5,12 +5,12 @@ namespace WebApplication3.Repositories
 {
     public interface IMeasurementRepository
     {
-        MeasurementEntity Get(int id);
+        MeasurementEntity Get(Guid id);
 
         List<MeasurementEntity>GetAll();
         bool Add(MeasurementEntity model);
         bool Update(MeasurementEntity model);
-       bool Delete(int id);
+       bool Delete(Guid id);
     }
     public class MeasurementRepository : IMeasurementRepository
     {
@@ -20,7 +20,7 @@ namespace WebApplication3.Repositories
         {
             _context = context;
         }
-        public MeasurementEntity Get(int id)
+        public MeasurementEntity Get(Guid id)
         {
             return _context.Measurement.FirstOrDefault(n => n.Id == id);
         }
@@ -35,7 +35,7 @@ namespace WebApplication3.Repositories
             return _context.SaveChanges() >0;
         }
 
-        public bool Delete(int id)
+        public bool Delete(Guid id)
         {
             var model =Get(id);
             _context.Measurement.Remove(model);

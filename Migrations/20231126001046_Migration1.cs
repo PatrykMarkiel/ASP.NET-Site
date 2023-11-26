@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace WebApplication3.Migrations
 {
     /// <inheritdoc />
-    public partial class Imigration : Migration
+    public partial class Migration1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -51,24 +51,6 @@ namespace WebApplication3.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "TestType",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    comment = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Saferange = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Value = table.Column<double>(type: "float", nullable: false),
-                    ValueTemplate = table.Column<double>(type: "float", nullable: false),
-                    MeasurementName = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TestType", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -203,13 +185,17 @@ namespace WebApplication3.Migrations
                 name: "Measurement",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    comment = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Comment = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Value = table.Column<double>(type: "float", nullable: false),
+                    ValueTemplate = table.Column<double>(type: "float", nullable: false),
+                    Price = table.Column<double>(type: "float", nullable: false),
                     TreatmentTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     InsertionTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Price = table.Column<double>(type: "float", nullable: false),
+                    SafeRange = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    MeasurementName = table.Column<int>(type: "int", nullable: false),
                     BodyPartName = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
@@ -328,9 +314,6 @@ namespace WebApplication3.Migrations
 
             migrationBuilder.DropTable(
                 name: "Profiles");
-
-            migrationBuilder.DropTable(
-                name: "TestType");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

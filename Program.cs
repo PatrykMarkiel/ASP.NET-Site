@@ -18,7 +18,6 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddTransient<IMeasurementRepository, MeasurementRepository>();
 builder.Services.AddTransient<IDeviceEntityRepository, DeviceRepository>();
-builder.Services.AddTransient<ITestTypeEntityRepository, TestTypeRepository>();
 builder.Services.AddTransient<IProfileEntityRepository, ProfileRepository>();
 var app = builder.Build();
 

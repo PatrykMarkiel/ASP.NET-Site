@@ -10,6 +10,7 @@ namespace WebApplication3.Models.ViewModel
 
         [Required(AllowEmptyStrings = true)]
         public string Description { get; set; }
+
         [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:yyyy-MM-dd HH:mm}")]
         public DateTime Time { get; set; }
         public string UserId { get; set; }

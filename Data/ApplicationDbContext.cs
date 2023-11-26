@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Emit;
 using WebApplication3.Data.Entities;
 
 namespace WebApplication3.Data
@@ -8,7 +9,6 @@ namespace WebApplication3.Data
         public class ApplicationDbContext : IdentityDbContext<UserEntity>
     {
         public DbSet<MeasurementEntity> Measurement { get; set; }
-        public DbSet<TestTypeEntity> TestType { get; set; }
         public DbSet<ProfileEntity> Profiles { get; set; }
         public DbSet<DeviceEntity> Device { get; set; }
         public DbSet<UserEntity> User { get; set; } 
