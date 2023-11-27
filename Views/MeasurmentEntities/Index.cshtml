@@ -3,61 +3,109 @@
     ViewData["Title"] = "Measurement Entities";
 }
 
-<h1>Measurement Entities</h1>
+<div class="d-flex justify-content-between align-items-center">
+    <h1 class="mr-3"><b>Measurements</b></h1>
+    <div class="flex-grow-1"></div>
+    <a class="btn btn-primary" asp-action="Create">Create New</a>
+</div>
+<hr />
+@foreach (var measurementType in Model.Select(m => m.MeasurementName).Distinct())
+{
+    
+    <h4><b>@measurementType</b></h4>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Measurement Name
-            </th>
-            <th>
-                Measurement Comment
-            </th>
-            <th>
-                Measurement Treatment Time
-            </th>
-            <th>
-                Measurement Insertion Time
-            </th>
-            <th>
-                Measurement Body Part Name
-            </th>
-            <th>
-                Test Type Name
-            </th>
-        </tr>
-    </thead>
-    <tbody>
- @if (Model != null)
-        {
-            @foreach (var item in Model)
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Measurement</th>
+                <th>Comment</th>
+                @if (measurementType.ToString() == "Observation")
+                {
+                    <th>Body Part</th>
+                }
+                else
+                {
+                    <th class="text-center">Value</th>
+                    <th class="text-center">Difference</th>
+                }
+                <th class="text-center">Safe Range</th>
+                <th class="text-center">Treatment Time</th>
+                <th class="text-center">Insertion Time</th>
+                <th class="border-end-0"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @{var previousValue = 0.0;}
+            @foreach (var item in Model.Where(m => m.MeasurementName == measurementType))
             {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.MeasurementName)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Comment)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.TreatmentTime)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.InsertionTime)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.BodyPart)
-                    </td>
+                var unit = "unit";
+                var NameToUnit = item.MeasurementName.ToString();
+                switch (NameToUnit)
+                {
+                    case "Pulse":
+                         unit = "bpm";
+                     break;
+                    case "Height":
+                    case "BodyMeasure":
+                        unit = "cm";
+                    break;
+                    case "Weight":
+                        unit = "kg";
+                    break;
+                    case "Saturation":
+                        unit = "%";
+                    break;
 
-                    <!-- Dodaj tutaj odpowiednie wyświetlanie danych związanych z TestTypeEntity -->
-                    <!-- np. @Html.DisplayFor(modelItem => item.Description) -->
+                }
+                var currentValue = Convert.ToDouble(item.Value);
+                var difference = currentValue - previousValue;
+                previousValue = currentValue;
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.MeasurementName)</td>
+                    <td class="comment col-md-4 text-break">@Html.DisplayFor(modelItem => item.Comment)</td>
+                    @if (measurementType.ToString() == "Observation")
+                    {
+                        <td>@Html.DisplayFor(modelItem => item.BodyPart)</td>
+
+                    }
+                    else
+                    {
+                        <td class="text-center">@Html.DisplayFor(modelItem => item.Value) @unit</td>
+                        if (difference != previousValue && difference != 0)
+                        {
+                            if (difference > 0)
+                                {
+                                    <td class="text-center">+@difference</td>
+                                }
+                                else
+                                {
+                                    <td class="text-center">@difference</td>
+                                }
+                        }
+                        else
+                        {
+                            <td class="text-center">-</td>
+                        }
+
+                    }
+                    @{
+                        var SafeRange = item.SafeRange.ToShortDateString();
+                        <td class="text-center">@SafeRange</td>
+                        var TreatmentTime = item.TreatmentTime.ToString("dd.MM.yyyy HH:mm");
+                    }
+                    <td class="text-center">@TreatmentTime</td>
+                    @{
+                        var InsertionTime = item.InsertionTime.ToString("dd.MM.yyyy HH:mm");
+                    }
+                    <td class="text-center">@InsertionTime</td>
+                    <td class="border-end-0">
+                        <div class="btn-group">
+                            <a class="btn btn-secondary me-1" style="height: 38px; width: 70px; " asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                            <a class="btn btn-danger" style="height: 38px; width: 70px; " asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                        </div>
+                    </td>
                 </tr>
             }
-        }
-    </tbody>
-</table>
+        </tbody>
+    </table>
+}

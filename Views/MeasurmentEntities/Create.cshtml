@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Create";
 }
-
+<h1 class="mr-3">Create new measurement</h1>
 <form asp-action="Create" method="post">
     <div class="form-group">
         <label asp-for="MeasurementName"></label>
@@ -15,10 +15,9 @@
         </select>
         <span asp-validation-for="MeasurementName" class="text-danger"></span>
     </div>
-
     <div class="form-group" id="bodyPartField">
         <label asp-for="BodyPart"></label>
-        <select asp-for="BodyPart" class="form-control">
+        <select asp-for="BodyPart" class="form-control" id="bodyPartSelect">
             @foreach (var value in Enum.GetValues(typeof(WebApplication3.Data.Entities.BodyPart)))
             {
                 <option value="@value.ToString()">@Enum.GetName(typeof(WebApplication3.Data.Entities.BodyPart), value)</option>
@@ -26,30 +25,22 @@
         </select>
         <span asp-validation-for="BodyPart" class="text-danger"></span>
     </div>
-
     <div class="form-group">
         <label asp-for="Comment"></label>
         <textarea asp-for="Comment" class="form-control"></textarea>
         <span asp-validation-for="Comment" class="text-danger"></span>
     </div>
     <div class="form-group" id="valueField">
-        <label asp-for="Value" id="valueLabel"></label>
+        <label asp-for="Value" id="valueLabel"></label><br />
         <input asp-for="Value" class="form-control" />
         <span asp-validation-for="Value" class="text-danger"></span>
     </div>
-
-    <div class="form-group" id="ValueUnitField">
-        <label asp-for="ValueUnit" id="ValueUnitLabel"></label>
-        <input asp-for="ValueUnit" class="form-control" />
-        <span asp-validation-for="ValueUnit" class="text-danger"></span>
-    </div>
+    <p id="unitParagraph" style="display: none;">Unit: </p>
     <div class="form-group">
         <label asp-for="TreatmentTime"></label>
         <input asp-for="TreatmentTime" type="datetime-local" class="form-control" />
         <span asp-validation-for="TreatmentTime" class="text-danger"></span>
     </div>
-
-
     <div class="form-group">
         <label asp-for="SafeRange"></label>
         <input asp-for="SafeRange" class="form-control" type="date" />
@@ -59,76 +50,49 @@
     <br>
     <div class="form-group">
         <input type="submit" value="Create" class="btn btn-primary" />
-        <a asp-action="Index">Back to List</a>
-
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
     </div>
         </form>
-
     </div>
-
-
 </div>
 
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             var measurementName = document.getElementById("measurementName");
             var bodyPartField = document.getElementById("bodyPartField");
             var valueField = document.getElementById("valueField");
-            var ValueUnitField = document.getElementById("ValueUnitField");
-
-            bodyPartField.style.display = "none";
-            valueField.style.display = "block";
-            ValueUnitField.style.display = "block";
+            var bodyPartSelect = document.getElementById("bodyPartSelect");
+            var valueInput = document.getElementById("Value");
 
             measurementName.addEventListener("change", function () {
-                if (measurementName.value === "Observation") {
+                var selectedOption = measurementName.value;
+                if (selectedOption === "Observation") {
                     bodyPartField.style.display = "block";
                     valueField.style.display = "none";
-                    ValueUnitField.style.display = "none";
+                    unitParagraph.style.display = "block";
                 } else {
                     bodyPartField.style.display = "none";
                     valueField.style.display = "block";
-                    ValueUnitField.style.display = "block";
+                    unitParagraph.style.display = "none";
+                }
 
-                    var valueUnitLabel = document.getElementById("ValueUnitLabel");
-                    var valueUnitInput = document.getElementById("ValueUnit");
-                    switch (measurementName.value) {
-                        case "Pulse":
-                            valueUnitLabel.innerText = "Pulse Unit:";
-                            valueUnitInput.value = "bpm"; 
-                            valueUnitInput.setAttribute("data-value", "1"); 
-                            break;
-                        case "Height":
-                            valueUnitLabel.innerText = "Height Unit:";
-                            valueUnitInput.value = "cm"; 
-                            valueUnitInput.setAttribute("data-value", "2"); 
-                            break;
-                        case "Weight":
-                            valueUnitLabel.innerText = "Weight Unit:";
-                            valueUnitInput.value = "kg"; 
-                            valueUnitInput.setAttribute("data-value", "3"); 
-                            break;
-                        case "Saturation":
-                            valueUnitLabel.innerText = "Saturation Unit:";
-                            valueUnitInput.value = "%"; 
-                            valueUnitInput.setAttribute("data-value", "4"); 
-                            break;
-                        case "BodyMeasure":
-                            valueUnitLabel.innerText = "Body Measure Unit:";
-                            valueUnitInput.value = "cm"; 
-                            valueUnitInput.setAttribute("data-value", "5"); 
-                            break;
-                        default:
-                            valueUnitLabel.innerText = "Value Unit:";
-                            valueUnitInput.value = "";
-                            break;
-                    }
-
+                if (selectedOption === "Saturation") {
+                    valueInput.min = "0"; 
+                    valueInput.max = "100"; 
+                } else {
+                    valueInput.min = "0"; 
+                    valueInput.max = "300"; 
                 }
             });
+
+            measurementName.dispatchEvent(new Event("change"));
         });
     </script>
+
+
 }

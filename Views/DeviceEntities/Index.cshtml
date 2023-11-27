@@ -4,27 +4,40 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
 @{
     var i = 0;
-    
-        var devicesCount = Model?.Count ?? 0; 
-    }
 
-    @if (devicesCount < 5)
+    var devicesCount = Model?.Count ?? 0;
+}
+@if (devicesCount ==4)
+{
+    <div class="d-flex justify-content-between align-items-center">
+        <h1 class="mr-3"><b>Devices</b></h1>
+        <div class="flex-grow-1"></div>
+        <a class="btn btn-primary" asp-action="Create">Create New</a>
+    </div>
+    <div class="alert alert-warning" role="alert">
+        You can only add one more device
+    </div>
+
+
+    }
+@if (devicesCount < 5 && devicesCount!=4)
     {
-        <p>
-            <a asp-action="Create">Create New</a>
-        </p>
+    <div class="d-flex justify-content-between align-items-center">
+        <h1 class="mr-3">Devices</h1>
+        <div class="flex-grow-1"></div>
+        <a class="btn btn-primary" asp-action="Create">Create New</a>
+    </div>
     }
-    else
+else if (devicesCount != 4)
     {
-        <p><b>Limit of 5 devices has been reached</b></p>
+    <h1 class="mr-3">Devices</h1>
+    <div class="alert alert-danger" role="alert">
+        You can only add one more device
+    </div>
     }
-
-
-
-
+<hr />
 <table class="table">
     <thead>
         <tr>
@@ -49,14 +62,17 @@
                     <td>
                         @Html.DisplayFor(modelItem => item.Name)
                     </td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    <td class="text-end">
+                        <div class="btn-group">
+                            <a class="btn btn-primary me-1" style="height: 38px; width: 70px;" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                            <a class="btn btn-secondary me-1" style="height: 38px; width: 70px;" asp-action="Details" asp-route-id="@item.Id">Details</a>
+                            <a class="btn btn-danger" style="height: 38px; width: 70px;" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                        </div>
                     </td>
                 </tr>
-
+            }
         }
-}
     </tbody>
 </table>
+
+

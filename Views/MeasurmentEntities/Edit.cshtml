@@ -3,42 +3,117 @@
 @{
     ViewData["Title"] = "Edit";
 }
-
-<h1>Edit</h1>
-
-<h4>MeasurmentEntity</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="Comment" class="control-label"></label>
-                <input asp-for="Comment" class="form-control" />
-                <span asp-validation-for="Comment" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TreatmentTime" class="control-label"></label>
-                <input asp-for="TreatmentTime" class="form-control" />
-                <span asp-validation-for="TreatmentTime" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="InsertionTime" class="control-label"></label>
-                <input asp-for="InsertionTime" class="form-control" />
-                <span asp-validation-for="InsertionTime" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+<h1 class="mr-3">Edit measurement</h1>
+<form asp-action="Edit" method="post">
+    <!-- hidden zone -->
+    <div class="form-group">
+        <input type="hidden" asp-for="Id" />
+    </div>
+    <div class="form-group">
+        <input type="hidden" asp-for="InsertionTime" />
+    </div>
+    <div class="form-group">
+        <label asp-for="MeasurementName"></label>
+        <select type="hidden" asp-for="MeasurementName" class="form-control" id="measurementName">
+            @foreach (var value in Enum.GetValues(typeof(WebApplication3.Data.Entities.MeasurementName)))
+            {
+                <option value="@value.ToString()">@Enum.GetName(typeof(WebApplication3.Data.Entities.MeasurementName), value)</option>
+            }
+        </select>
+        <span asp-validation-for="MeasurementName" class="text-danger"></span>
+    </div>
+    <!-------------------------------------------->
+    <div class="form-group" id="bodyPartField">
+        <label asp-for="BodyPart"></label>
+        <select asp-for="BodyPart" class="form-control" id="bodyPartSelect">
+            @foreach (var value in Enum.GetValues(typeof(WebApplication3.Data.Entities.BodyPart)))
+            {
+                <option value="@value.ToString()">@Enum.GetName(typeof(WebApplication3.Data.Entities.BodyPart), value)</option>
+            }
+        </select>
+        <span asp-validation-for="BodyPart" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Comment"></label>
+        <textarea asp-for="Comment" class="form-control"></textarea>
+        <span asp-validation-for="Comment" class="text-danger"></span>
+    </div>
+    <div class="form-group" id="valueField">
+        <label asp-for="Value" id="valueLabel"></label><br />
+        <input asp-for="Value" class="form-control" />
+        <span asp-validation-for="Value" class="text-danger"></span>
+    </div>
+    <p id="unitParagraph" style="display: none;">Unit: </p>
+    <div class="form-group">
+        <label asp-for="TreatmentTime"></label>
+        <input asp-for="TreatmentTime" type="datetime-local" class="form-control" />
+        <span asp-validation-for="TreatmentTime" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="SafeRange"></label>
+        <input asp-for="SafeRange" class="form-control" type="date" />
+        <span asp-validation-for="SafeRange" class="text-danger"></span>
+    </div>
+    <input type="hidden" asp-for="UserId" value="@ViewData["UserId"]">
+    <br>
+    <div class="form-group">
+        <input type="submit" value="Edit" class="btn btn-primary" />
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+</form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var measurementName = document.getElementById("measurementName");
+            var bodyPartField = document.getElementById("bodyPartField");
+            var valueField = document.getElementById("valueField");
+            var bodyPartSelect = document.getElementById("bodyPartSelect");
+            var valueInput = document.getElementById("Value");
+            var unitParagraph = document.getElementById("unitParagraph");
+
+            var previousMeasurementType = measurementName.value;
+
+            measurementName.addEventListener("change", function () {
+                var selectedOption = measurementName.value;
+
+                if (previousMeasurementType !== selectedOption) {
+                    if (previousMeasurementType === "Pulse" && selectedOption === "Observation") {
+                        valueInput.value = "";
+                    } else if (previousMeasurementType === "Observation" && selectedOption === "Pulse") {
+                        bodyPartSelect.value = "";
+                    }
+
+                    previousMeasurementType = selectedOption;
+                }
+
+                if (selectedOption === "Observation") {
+                    bodyPartField.style.display = "block";
+                    valueField.style.display = "none";
+                    unitParagraph.style.display = "block";
+                } else {
+                    bodyPartField.style.display = "none";
+                    valueField.style.display = "block";
+                    unitParagraph.style.display = "none";
+                }
+
+                if (selectedOption === "Saturation") {
+                    valueInput.min = "0";
+                    valueInput.max = "100";
+                } else {
+                    valueInput.min = "0";
+                    valueInput.max = "300";
+                }
+            });
+
+            measurementName.dispatchEvent(new Event("change"));
+        });
+    </script>
 }
+

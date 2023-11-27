@@ -196,14 +196,10 @@ namespace WebApplication3.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("BodyPart")
+                    b.Property<int?>("BodyPart")
                         .HasColumnType("int");
 
                     b.Property<string>("Comment")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -223,11 +219,8 @@ namespace WebApplication3.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<double>("Value")
+                    b.Property<double?>("Value")
                         .HasColumnType("float");
-
-                    b.Property<int>("ValueUnit")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

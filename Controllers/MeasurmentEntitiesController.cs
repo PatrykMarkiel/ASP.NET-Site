@@ -36,13 +36,11 @@ namespace WebApplication3.Controllers
                 {
                     Id = measurement.Id,
                     Comment = measurement.Comment,
-                    Description = measurement.Description,
                     TreatmentTime = measurement.TreatmentTime,
                     InsertionTime = measurement.InsertionTime,
                     BodyPart = measurement.BodyPart,
                     SafeRange = measurement.SafeRange,
                     Value = measurement.Value,
-                    ValueUnit = measurement.ValueUnit,
                     MeasurementName = measurement.MeasurementName,
                     UserId = measurement.UserId
                 }).ToList();
@@ -78,6 +76,7 @@ namespace WebApplication3.Controllers
                     TreatmentTime = model.TreatmentTime,
                     InsertionTime = DateTime.Now,
                     SafeRange = model.SafeRange,
+                    Value = model.Value,
                     UserId = model.UserId,
                     MeasurementName = model.MeasurementName,
                     BodyPart = model.BodyPart 
@@ -90,20 +89,13 @@ namespace WebApplication3.Controllers
                 }
                 else
                 {
-                    if (model.Value == null)
-                    {
-                        ModelState.AddModelError("Value", "Wartość musi być liczbą.");
-                        return View(model);
-                    }
-
                     measurement.Value = model.Value.Value;
-                    measurement.ValueUnit = model.ValueUnit.Value; 
                 }
 
                 _context.Measurement.Add(measurement);
                 _context.SaveChanges();
 
-                return RedirectToAction("Index", "MeasurementEntities");
+                return RedirectToAction("Index", "MeasurmentEntities");
             }
 
             return View(model);
@@ -114,29 +106,27 @@ namespace WebApplication3.Controllers
         public IActionResult Edit(Guid id)
         {
             var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
-            var measurementEntity = _context.Measurement.FirstOrDefault(m => m.Id == id); 
+            var measurementEntity = _context.Measurement.FirstOrDefault(m => m.Id == id);
 
             if (measurementEntity == null)
             {
-                return NotFound(); 
+                return NotFound();
             }
 
             var measurementVm = new MeasurementVm
             {
                 Id = measurementEntity.Id,
                 Comment = measurementEntity.Comment,
-                Description = measurementEntity.Description,
                 TreatmentTime = measurementEntity.TreatmentTime,
                 InsertionTime = measurementEntity.InsertionTime,
                 BodyPart = measurementEntity.BodyPart,
                 SafeRange = measurementEntity.SafeRange,
                 Value = measurementEntity.Value,
-                ValueUnit = measurementEntity.ValueUnit,
                 MeasurementName = measurementEntity.MeasurementName,
                 UserId = measurementEntity.UserId
             };
 
-            return View(measurementVm); 
+            return View(measurementVm);
         }
 
         // POST: Measurement/Edit
@@ -147,25 +137,29 @@ namespace WebApplication3.Controllers
             if (ModelState.IsValid)
             {
                 var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
-                var measurementEntity = _context.Measurement.FirstOrDefault(m => m.Id == model.Id); 
+                var measurementEntity = _context.Measurement.FirstOrDefault(m => m.Id == model.Id);
+
+                if (measurementEntity == null)
+                {
+                    return NotFound();
+                }
 
                 measurementEntity.Comment = model.Comment;
-                measurementEntity.Description = model.Description;
                 measurementEntity.TreatmentTime = model.TreatmentTime;
-                measurementEntity.InsertionTime = model.InsertionTime;
                 measurementEntity.BodyPart = model.BodyPart;
+                measurementEntity.InsertionTime =model.InsertionTime;
                 measurementEntity.SafeRange = model.SafeRange;
                 measurementEntity.Value = model.Value;
-                measurementEntity.ValueUnit = model.ValueUnit;
                 measurementEntity.MeasurementName = model.MeasurementName;
 
-                _context.SaveChanges(); 
+                _context.SaveChanges();
 
-                return RedirectToAction("Index", "MeasurementEntites"); 
+                return RedirectToAction("Index", "MeasurementEntities");
             }
 
-            return View(model); 
+            return View(model);
         }
+
         // GET: Profile/Delete
         public IActionResult Delete()
         {
@@ -179,7 +173,6 @@ namespace WebApplication3.Controllers
                 Id = Guid.NewGuid(),
                 Comment = model.Comment,
                 Value = model.Value,
-                ValueUnit = model.ValueUnit,
                 TreatmentTime = model.TreatmentTime,
                 InsertionTime = DateTime.Now,
                 SafeRange = model.SafeRange,
@@ -204,7 +197,7 @@ namespace WebApplication3.Controllers
             _context.Measurement.Remove(Measuremnt);
             _context.SaveChanges();
 
-            return RedirectToAction("Details", "ProfileEntities");
+            return RedirectToAction("Index", "MeasurmentEntities");
         }
     
     }

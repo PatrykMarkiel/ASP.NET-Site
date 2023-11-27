@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace WebApplication3.Migrations
 {
     /// <inheritdoc />
-    public partial class Test1 : Migration
+    public partial class test1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -187,14 +187,12 @@ namespace WebApplication3.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Comment = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Value = table.Column<double>(type: "float", nullable: false),
-                    ValueUnit = table.Column<int>(type: "int", nullable: false),
+                    Value = table.Column<double>(type: "float", nullable: true),
                     TreatmentTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     InsertionTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     SafeRange = table.Column<DateTime>(type: "datetime2", nullable: false),
                     MeasurementName = table.Column<int>(type: "int", nullable: false),
-                    BodyPart = table.Column<int>(type: "int", nullable: false),
+                    BodyPart = table.Column<int>(type: "int", nullable: true),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>

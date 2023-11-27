@@ -1,81 +1,53 @@
 ﻿@using WebApplication3.Models.ViewModel;
-@model HomeViewModel;
+@model HomeViewModel
 @{
     ViewData["Title"] = "Home Page";
 }
 
-@if (User.Identity.IsAuthenticated)
-{
-    <script>
-        @{
-            double maxValue = Model.Weight.Max();
-            double minValue = Model.Weight.Min();
-
-            maxValue = Math.Ceiling((maxValue) / 10.0) * 10;
-            maxValue = Math.Ceiling(maxValue / 5.0) * 5;
-
-            minValue = Math.Floor(minValue / 5.0) * 5 - 5;
-            if (minValue < 0)
-            {
-                minValue = 0;
-            }
-            if (minValue + 5 > maxValue)
-            {
-                maxValue += 5;
-            }
-            maxValue = Math.Ceiling(maxValue / 5.0) * 5;
-
-            var step = 5;
-            var yValues = new List<double>();
-            for (double i = minValue; i <= maxValue; i += step)
-            {
-                yValues.Add(i);
-            }
-            
-            var ChartValues = new List<double>();
-            @foreach (var Weight in Model.Weight)
-            {
-                ChartValues.Add(Weight);
-            }
-        }
-    </script>
-
-    <div class="container">
-        <br>
+<div class="container">
+    @if (User.Identity.IsAuthenticated)
+    {
+        <br />
         <div>
             <div class="my-5 p-4 bg-light text-white center">
+                <!-- Tutaj możesz umieścić dodatkową zawartość dla zalogowanego użytkownika -->
             </div>
         </div>
 
         <div class="row">
             <div class="col-md-4">
-                <div class="my-2 p-3 bg-danger text-white text-center">Div 2</div>
+                <div class="my-2 p-3 bg-danger text-white text-center square">Div 2</div>
             </div>
             <div class="col-md-4">
-                <div class="my-2 p-3 bg-danger text-white text-center">Div 3</div>
+                <div class="my-2 p-3 bg-danger text-white text-center square">Div 3</div>
             </div>
             <div class="col-md-4">
-                <div class="my-2 p-3 bg-danger text-white text-center">Div 4</div>
+                <div class="my-2 p-3 bg-danger text-white text-center square">Div 4</div>
             </div>
         </div>
 
         <div class="row justify-content-center">
             <div class="col-md-4">
-                <div class="my-2 p-3 bg-secondary text-white text-center">Div 5</div>
+                <div class="my-2 p-3 bg-secondary text-white text-center square">Div 5</div>
             </div>
             <div class="col-md-4">
-                <div class="my-2 p-3 bg-secondary text-white text-center">Div 6</div>
+                <div class="my-2 p-3 bg-secondary text-white text-center square">Div 6</div>
             </div>
         </div>
-    </div>
-}
-else
-{
-    <p>
+    }
+    else
+    {
         <div class="row">
             <div class="col-12">
                 <div class="my-5 p-4 bg-secondary text-white text-center">Login to do test or check your data</div>
             </div>
         </div>
-    </p>
-}
+    }
+</div>
+<style>
+    .square {
+        height: 50px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+</style>
