@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection.Emit;
+using WebApplication3.Controllers;
 using WebApplication3.Data.Entities;
 using WebApplication3.Models.ViewModel;
 namespace WebApplication3.Data
@@ -11,8 +12,8 @@ namespace WebApplication3.Data
         public DbSet<MeasurementEntity> Measurement { get; set; }
         public DbSet<ProfileEntity> Profiles { get; set; }
         public DbSet<DeviceEntity> Device { get; set; }
-        public DbSet<UserEntity> User { get; set; } 
-
+        public DbSet<UserEntity> User { get; set; }
+        public UserManager<ApplicationUser> Idk { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {

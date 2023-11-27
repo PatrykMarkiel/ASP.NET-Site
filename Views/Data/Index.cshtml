@@ -1,77 +1,60 @@
-﻿@using WebApplication3.Models.ViewModel;
-@model DataViewModel;
-@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@using WebApplication3.Models.ViewModel
+@model List<DataVm>
+
 @{
     ViewData["Title"] = "Current patient Medical Data";
 }
 
-<div class=" container mt-4">
+<div class="container mt-4">
     <h1>@ViewData["Title"]</h1>
-        <table class="table table-bordered table-fixed">
-            <thead class="thead-dark;">
+    <table class="table table-bordered table-fixed">
+        <thead class="thead-dark;">
+            <tr>
+                <th>Name</th>
+                <th>Height (cm)</th>
+                <th>Body Circumference (cm)</th>
+                <th>Weight (kg)</th>
+                <th>BMI</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
                 <tr>
-                    <th>Name</th>
-                    <th>Height (cm)</th>
-                    <th>Body Circumference (cm)</th>
-                    <th>Weight (kg)</th>
-                    <th>BMI</th>
+                    <td>@(item.Name ?? "") @(item.Surname ?? "")</td>
+                    <td>@(item.Height.HasValue ? item.Height.Value.ToString() : "")</td>
+                    <td>@(item.BodyCircumference.HasValue ? item.BodyCircumference.Value.ToString() : "")</td>
+                    <td>@(item.Weight.HasValue ? item.Weight.Value.ToString() : "")</td>
+                    <td>@(item.BMI.HasValue ? item.BMI.Value.ToString() : "")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="table-responsive mt-4">
+        <table class="table table-bordered table-fixed">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Blood Type</th>
+                    <th>Heart Rate (bpm)</th>
+                    <th>Oxygen Saturation (%)</th>
                 </tr>
             </thead>
             <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
 
-                <tr>
-                    <td>@Model.Name</td>
-                    <td>@Model.Height</td>
-                    <td>@Model.BodyCircumference</td>
-                    <td>@Model.Weight</td>
-                    <td>@Model.BMI</td>
-                </tr>
-
+                        <td>@(item.Blood != null ? item.Blood.ToString() : "Unknown")</td>
+                        <td>@(item.HeartRate.HasValue ? item.HeartRate.Value.ToString() : "")</td>
+                    </tr>
+                }
             </tbody>
         </table>
-
-        <div class="table-responsive mt-4">
-            <table class="table table-bordered table-fixed">
-                <thead class="thead-dark">
-                    <tr>
-                        <th>Blood Type</th>
-                        <th>Heart Rate (bpm)</th>
-                        <th>Glucose (mg/dL)</th>
-                        <th>Oxygen Saturation (%)</th>
-                    </tr>
-                </thead>
-                <tbody>
-
-                    <tr>
-                        <td>@Model.BloodType</td>
-                        <td>@Model.HeartRate</td>
-                        <td>@Model.Glucose</td>
-                        <td>@Model.Oxygen</td>
-                    </tr>
-
-                </tbody>
-            </table>
-        </div>
-        <div class="table-responsive mt-4">
-            <table class="table table-bordered table-fixed">
-                <thead class="thead-dark">
-                    <tr>
-                        <th>Observations</th>
-                    </tr>
-                </thead>
-                <tr>
-                    <td class=" text-break">
-                        @Model.Observations
-                    </td>
-                </tr>
-            </table>
-        </div>
+    </div>
     <div class="d-flex justify-content-center mt-4">
         <button type="button" class="btn btn-primary">
             Download
         </button>
     </div>
-
-    </div>
+</div>
