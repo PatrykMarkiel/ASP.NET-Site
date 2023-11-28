@@ -1,167 +1,93 @@
-﻿@model IEnumerable<WebApplication3.Models.ViewModel.MeasurementVm>
+﻿@using WebApplication3.Models.ViewModel;
+@model IEnumerable<MeasurementVm>
 
 @{
-    ViewBag.Title = "Charts";
-}
+    ViewData["Title"] = "Measurement Chart";
 
-<h2>Measurements</h2>
+    // Pobranie unikalnych dat w formacie yyyy-MM-dd z modelu
+    var uniqueDates = Model.Select(m => m.InsertionTime.Date.ToString("yyyy-MM-dd")).Distinct().ToList();
 
-<table>
-    <thead>
-        <tr>
-            <th>MeasurementName</th>
-            <th>Value</th>
-            <th>InsertionTime</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
+    // Zbieranie wartości dla osi X (daty)
+    var xValues = new List<string>();
+    foreach (var date in uniqueDates)
+    {
+        xValues.Add(date);
+    }
+
+    // Przygotowanie danych dla wykresu
+    var datasets = new List<object>();
+    var random = new Random();
+
+    // Przygotowanie danych dla każdej nazwy pomiaru (MeasurementName)
+    var measurementNames = Model.Select(m => m.MeasurementName).Distinct().ToList();
+    foreach (var measurementName in measurementNames)
+    {
+        var dataValues = new List<double?>();
+
+        foreach (var date in uniqueDates)
         {
-            var Name = item.MeasurementName.ToString();
-            if (Name != "Observation")
+            // Pobranie wartości dla danego pomiaru i daty
+            var measurementForDate = Model.FirstOrDefault(m => m.MeasurementName == measurementName && m.InsertionTime.Date.ToString("yyyy-MM-dd") == date);
+
+            if (measurementForDate != null)
             {
-                <tr>
-                    <td>@item.MeasurementName</td>
-                    <td>@item.Value</td>
-                    <td>@item.InsertionTime</td>
-                </tr>
+                dataValues.Add(measurementForDate.Value ?? 0);
+            }
+            else
+            {
+                dataValues.Add(null);
             }
         }
-    </tbody>
-</table>
 
-<div id="heightChartContainer"></div>
-<div id="weightChartContainer"></div>
-<div id="saturationChartContainer"></div>
+        // Losowanie koloru dla serii danych
+        var randomColor = String.Format("#{0:X6}", random.Next(0x1000000));
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.8.0/chart.min.js"></script>
-
-<script>
-    var labels = {
-        height: [],
-        weight: [],
-        saturation: []
-    };
-
-    var values = {
-        height: [],
-        weight: [],
-        saturation: []
-    };
-
-    function generateChartData(measurements) {
-        measurements.forEach(function (item) {
-            if (item.MeasurementName === 'Height') {
-                labels.height.push(item.InsertionTime);
-                values.height.push(item.Value);
-            } else if (item.MeasurementName === 'Weight') {
-                labels.weight.push(item.InsertionTime);
-                values.weight.push(item.Value);
-            } else if (item.MeasurementName === 'Saturation') {
-                labels.saturation.push(item.InsertionTime);
-                values.saturation.push(item.Value);
-            }
+        // Dodanie danych do zestawu danych na wykresie
+        datasets.Add(new
+        {
+            label = measurementName.ToString(),
+            data = dataValues,
+            borderColor = randomColor,
+            fill = false
         });
     }
+}
 
-    generateChartData(@Html.Raw(Json.Serialize(Model)));
+<canvas id="myChart" style="width:100%;max-width:600px"></canvas>
 
-    var labels = [];
-    var values = [];
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.6.0/Chart.min.js"></script>
 
-    function generateChartData(measurementType) {
-        labels.length = 0;
-        values.length = 0;
+    <script>
+        var xValues = @Html.Raw(Json.Serialize(xValues)); // Przekazanie danych do skryptu JavaScript
 
-        var type = measurementType.toString();
-        var Name = type
+        var chartData = {
+            labels: xValues,
+            datasets: @Html.Raw(Json.Serialize(datasets))
+                };
 
-        // Upewnij się, że pętla foreach jest poprawnie zagnieżdżona w bloku <text></text> lub @{
-    }
-    @foreach (var item in Model)
-    {
-        <text>
-                    if ('@item.MeasurementName' == Name) {
-                labels.push('@item.InsertionTime');
-                values.push('@item.Value');
-            }
-        </text>
-    }
-        }
-
-            return {
-            labels: labels,
-            values: values
-        };
-    }
-
-    var heightData = generateChartData("Height");
-    var weightData = generateChartData("Weight");
-    var saturationData = generateChartData("Saturation");
-
-    var heightChart = new Chart(document.getElementById('heightChartContainer'), {
-        type: 'line',
-        data: {
-            labels: heightData.labels,
-            datasets: [{
-                label: 'Height',
-                data: heightData.values,
-                borderColor: 'blue',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
+        new Chart("myChart", {
+            type: "line",
+            data: chartData,
+            options: {
+                legend: { display: true },
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Insertion Date'
+                        }
+                    },
+                    y: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Value'
+                        }
                     }
-                }]
+                }
             }
-        }
-    });
-
-    var weightChart = new Chart(document.getElementById('weightChartContainer'), {
-        type: 'line',
-        data: {
-            labels: weightData.labels,
-            datasets: [{
-                label: 'Weight',
-                data: weightData.values,
-                borderColor: 'green',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    }
-                }]
-            }
-        }
-    });
-
-    var saturationChart = new Chart(document.getElementById('saturationChartContainer'), {
-        type: 'line',
-        data: {
-            labels: saturationData.labels,
-            datasets: [{
-                label: 'Saturation',
-                data: saturationData.values,
-                borderColor: 'purple',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    }
-                }]
-            }
-        }
-    });
-</script>
+        });
+    </script>
+}

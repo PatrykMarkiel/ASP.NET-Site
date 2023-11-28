@@ -199,16 +199,16 @@ namespace WebApplication3.Controllers
 
             return RedirectToAction("Index", "MeasurmentEntities");
         }
-
-        // GET: Charts
-        public async Task<IActionResult> Charts()
+        //Chart
+        [HttpGet]
+        public IActionResult Charts()
         {
-            var measurements = await _context.Measurement.ToListAsync();
-            var viewModel = new List<MeasurementVm>();
+            var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
+            var measurementEntities = _context.Measurement.Where(p => p.UserId == user.Id).ToList();
 
-            foreach (var measurement in measurements)
+            if (measurementEntities.Any())
             {
-                viewModel.Add(new MeasurementVm
+                List<MeasurementVm> modelInformation = measurementEntities.Select(measurement => new MeasurementVm
                 {
                     Id = measurement.Id,
                     Comment = measurement.Comment,
@@ -219,31 +219,14 @@ namespace WebApplication3.Controllers
                     Value = measurement.Value,
                     MeasurementName = measurement.MeasurementName,
                     UserId = measurement.UserId
-                });
+                }).ToList();
+
+                return View(modelInformation);
             }
-
-            return View(viewModel);
-        }
-        public IActionResult GenerateChartData()
-        {
-            var measurements = _context.Measurement.ToList();
-
-            // Tutaj można przetwarzać dane pomiarowe i przygotowywać je do wyświetlenia na wykresie
-
-            // Przykładowe przygotowanie danych dla wykresu
-            var viewModel = new List<MeasurementVm>();
-
-            foreach (var measurement in measurements)
+            else
             {
-                viewModel.Add(new MeasurementVm
-                {
-                    InsertionTime = measurement.InsertionTime,
-                    Value = measurement.Value
-                });
+                return View();
             }
-
-            return Json(viewModel); // Zwrócenie danych w formie JSON do wykorzystania w wykresie na froncie
         }
-
     }
 }
