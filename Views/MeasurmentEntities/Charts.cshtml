@@ -4,12 +4,12 @@
 @{
     ViewData["Title"] = "Measurement Chart";
 
-    var uniqueDates = Model.Select(m => m.InsertionTime.Date.ToString("yyyy-MM-dd")).OrderBy(d => DateTime.Parse(d)).ToList();
+    var uniqueTreatmentDates = Model.Select(m => m.TreatmentTime.Date).Distinct().OrderBy(d => d).ToList();
 
     var xValues = new List<string>();
-    foreach (var date in uniqueDates)
+    foreach (var date in uniqueTreatmentDates)
     {
-        xValues.Add(date);
+        xValues.Add(date.ToString("yyyy-MM-dd"));
     }
 
     var datasets = new List<object>();
@@ -22,9 +22,9 @@
         {
             var dataValues = new List<double?>();
 
-            foreach (var date in uniqueDates)
+            foreach (var date in uniqueTreatmentDates)
             {
-                var measurementForDate = Model.FirstOrDefault(m => m.MeasurementName == measurementName && m.InsertionTime.Date.ToString("yyyy-MM-dd") == date);
+                var measurementForDate = Model.FirstOrDefault(m => m.MeasurementName == measurementName && m.TreatmentTime.Date == date);
 
                 if (measurementForDate != null)
                 {
@@ -49,7 +49,7 @@
     }
 }
 
-<canvas id="myChart" style="width:100%;max-width:1000px"></canvas>
+<canvas id="myChart" style="width:100%;max-width:1200px"></canvas>
 
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.6.0/Chart.min.js"></script>
@@ -72,7 +72,7 @@
                         display: true,
                         title: {
                             display: true,
-                            text: 'Insertion Date'
+                            text: 'Treatment Date'
                         }
                     },
                     y: {
