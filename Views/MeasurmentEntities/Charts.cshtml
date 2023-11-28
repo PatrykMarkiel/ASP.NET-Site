@@ -4,62 +4,58 @@
 @{
     ViewData["Title"] = "Measurement Chart";
 
-    // Pobranie unikalnych dat w formacie yyyy-MM-dd z modelu
-    var uniqueDates = Model.Select(m => m.InsertionTime.Date.ToString("yyyy-MM-dd")).Distinct().ToList();
+    var uniqueDates = Model.Select(m => m.InsertionTime.Date.ToString("yyyy-MM-dd")).OrderBy(d => DateTime.Parse(d)).ToList();
 
-    // Zbieranie wartości dla osi X (daty)
     var xValues = new List<string>();
     foreach (var date in uniqueDates)
     {
         xValues.Add(date);
     }
 
-    // Przygotowanie danych dla wykresu
     var datasets = new List<object>();
     var random = new Random();
 
-    // Przygotowanie danych dla każdej nazwy pomiaru (MeasurementName)
     var measurementNames = Model.Select(m => m.MeasurementName).Distinct().ToList();
     foreach (var measurementName in measurementNames)
     {
-        var dataValues = new List<double?>();
-
-        foreach (var date in uniqueDates)
+        if (measurementName != null && measurementName.ToString() != "Observation")
         {
-            // Pobranie wartości dla danego pomiaru i daty
-            var measurementForDate = Model.FirstOrDefault(m => m.MeasurementName == measurementName && m.InsertionTime.Date.ToString("yyyy-MM-dd") == date);
+            var dataValues = new List<double?>();
 
-            if (measurementForDate != null)
+            foreach (var date in uniqueDates)
             {
-                dataValues.Add(measurementForDate.Value ?? 0);
+                var measurementForDate = Model.FirstOrDefault(m => m.MeasurementName == measurementName && m.InsertionTime.Date.ToString("yyyy-MM-dd") == date);
+
+                if (measurementForDate != null)
+                {
+                    dataValues.Add(measurementForDate.Value ?? 0);
+                }
+                else
+                {
+                    dataValues.Add(null);
+                }
             }
-            else
+
+            var randomColor = String.Format("#{0:X6}", random.Next(0x1000000));
+
+            datasets.Add(new
             {
-                dataValues.Add(null);
-            }
+                label = measurementName.ToString(),
+                data = dataValues,
+                borderColor = randomColor,
+                fill = false
+            });
         }
-
-        // Losowanie koloru dla serii danych
-        var randomColor = String.Format("#{0:X6}", random.Next(0x1000000));
-
-        // Dodanie danych do zestawu danych na wykresie
-        datasets.Add(new
-        {
-            label = measurementName.ToString(),
-            data = dataValues,
-            borderColor = randomColor,
-            fill = false
-        });
     }
 }
 
-<canvas id="myChart" style="width:100%;max-width:600px"></canvas>
+<canvas id="myChart" style="width:100%;max-width:1000px"></canvas>
 
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.6.0/Chart.min.js"></script>
 
     <script>
-        var xValues = @Html.Raw(Json.Serialize(xValues)); // Przekazanie danych do skryptu JavaScript
+        var xValues = @Html.Raw(Json.Serialize(xValues));
 
         var chartData = {
             labels: xValues,
