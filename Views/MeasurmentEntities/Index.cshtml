@@ -1,4 +1,5 @@
 ﻿@model List<WebApplication3.Models.ViewModel.MeasurementVm>
+
 @{
     ViewData["Title"] = "Measurement Entities";
 }
@@ -7,8 +8,10 @@
     <h1 class="mr-3"><b>Measurements</b></h1>
     <div class="flex-grow-1"></div>
     <a class="btn btn-primary" asp-action="Create">Create New</a>
+    <a class="btn btn-primary" asp-action="Charts">Charts</a>
 </div>
 <hr />
+
 @foreach (var measurementType in Model.Select(m => m.MeasurementName).Distinct())
 {
     <h4><b>@measurementType</b></h4>
@@ -34,73 +37,81 @@
             </tr>
         </thead>
         <tbody>
-            @{var previousValue = 0.0;}
+            @{
+                var previousValue = 0.0;
+            }
             @foreach (var item in Model.Where(m => m.MeasurementName == measurementType))
             {
                 var unit = "unit";
-                var NameToUnit = item.MeasurementName.ToString();
-                switch (NameToUnit)
+                var nameToUnit = item.MeasurementName.ToString();
+
+                switch (nameToUnit)
                 {
                     case "Pulse":
-                         unit = "bpm";
-                     break;
+                        unit = "bpm";
+                        break;
                     case "Height":
                     case "BodyMeasure":
                         unit = "cm";
-                    break;
+                        break;
                     case "Weight":
                         unit = "kg";
-                    break;
+                        break;
                     case "Saturation":
                         unit = "%";
-                    break;
-
+                        break;
                 }
+
                 var currentValue = Convert.ToDouble(item.Value);
                 var difference = currentValue - previousValue;
                 previousValue = currentValue;
+
                 <tr>
                     <td>@Html.DisplayFor(modelItem => item.MeasurementName)</td>
                     <td class="comment col-md-4 text-break">@Html.DisplayFor(modelItem => item.Comment)</td>
+
                     @if (measurementType.ToString() == "Observation")
                     {
                         <td>@Html.DisplayFor(modelItem => item.BodyPart)</td>
-
                     }
                     else
                     {
                         <td class="text-center">@Html.DisplayFor(modelItem => item.Value) @unit</td>
+
                         if (difference != previousValue && difference != 0)
                         {
                             if (difference > 0)
-                                {
-                                    <td class="text-center">+@difference</td>
-                                }
-                                else
-                                {
-                                    <td class="text-center">@difference</td>
-                                }
+                            {
+                                <td class="text-center">+@difference</td>
+                            }
+                            else
+                            {
+                                <td class="text-center">@difference</td>
+                            }
                         }
                         else
                         {
                             <td class="text-center">-</td>
                         }
+                    }
 
-                    }
                     @{
-                        var SafeRange = item.SafeRange.ToShortDateString();
-                        <td class="text-center">@SafeRange</td>
-                        var TreatmentTime = item.TreatmentTime.ToString("dd.MM.yyyy HH:mm");
+                        var safeRange = item.SafeRange.ToShortDateString();
+                        <td class="text-center">@safeRange</td>
+                        var treatmentTime = item.TreatmentTime.ToString("dd.MM.yyyy HH:mm");
                     }
-                    <td class="text-center">@TreatmentTime</td>
+
+                    <td class="text-center">@treatmentTime</td>
+
                     @{
-                        var InsertionTime = item.InsertionTime.ToString("dd.MM.yyyy HH:mm");
+                        var insertionTime = item.InsertionTime.ToString("dd.MM.yyyy HH:mm");
                     }
-                    <td class="text-center">@InsertionTime</td>
+
+                    <td class="text-center">@insertionTime</td>
                     <td class="border-end-0">
                         <div class="btn-group">
-                            <a class="btn btn-secondary me-1" style="height: 38px; width: 70px; " asp-action="Edit" asp-route-id="@item.Id">Edit</a>
-                            <a class="btn btn-danger" style="height: 38px; width: 70px; " asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                            <a class="btn btn-secondary me-1" style="height: 38px; width: 70px;" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                            <a class="btn btn-danger" style="height: 38px; width: 70px;" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
                         </div>
                     </td>
                 </tr>

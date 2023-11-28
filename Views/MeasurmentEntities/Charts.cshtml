@@ -1,0 +1,167 @@
+﻿@model IEnumerable<WebApplication3.Models.ViewModel.MeasurementVm>
+
+@{
+    ViewBag.Title = "Charts";
+}
+
+<h2>Measurements</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>MeasurementName</th>
+            <th>Value</th>
+            <th>InsertionTime</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            var Name = item.MeasurementName.ToString();
+            if (Name != "Observation")
+            {
+                <tr>
+                    <td>@item.MeasurementName</td>
+                    <td>@item.Value</td>
+                    <td>@item.InsertionTime</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+<div id="heightChartContainer"></div>
+<div id="weightChartContainer"></div>
+<div id="saturationChartContainer"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.8.0/chart.min.js"></script>
+
+<script>
+    var labels = {
+        height: [],
+        weight: [],
+        saturation: []
+    };
+
+    var values = {
+        height: [],
+        weight: [],
+        saturation: []
+    };
+
+    function generateChartData(measurements) {
+        measurements.forEach(function (item) {
+            if (item.MeasurementName === 'Height') {
+                labels.height.push(item.InsertionTime);
+                values.height.push(item.Value);
+            } else if (item.MeasurementName === 'Weight') {
+                labels.weight.push(item.InsertionTime);
+                values.weight.push(item.Value);
+            } else if (item.MeasurementName === 'Saturation') {
+                labels.saturation.push(item.InsertionTime);
+                values.saturation.push(item.Value);
+            }
+        });
+    }
+
+    generateChartData(@Html.Raw(Json.Serialize(Model)));
+
+    var labels = [];
+    var values = [];
+
+    function generateChartData(measurementType) {
+        labels.length = 0;
+        values.length = 0;
+
+        var type = measurementType.toString();
+        var Name = type
+
+        // Upewnij się, że pętla foreach jest poprawnie zagnieżdżona w bloku <text></text> lub @{
+    }
+    @foreach (var item in Model)
+    {
+        <text>
+                    if ('@item.MeasurementName' == Name) {
+                labels.push('@item.InsertionTime');
+                values.push('@item.Value');
+            }
+        </text>
+    }
+        }
+
+            return {
+            labels: labels,
+            values: values
+        };
+    }
+
+    var heightData = generateChartData("Height");
+    var weightData = generateChartData("Weight");
+    var saturationData = generateChartData("Saturation");
+
+    var heightChart = new Chart(document.getElementById('heightChartContainer'), {
+        type: 'line',
+        data: {
+            labels: heightData.labels,
+            datasets: [{
+                label: 'Height',
+                data: heightData.values,
+                borderColor: 'blue',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+
+    var weightChart = new Chart(document.getElementById('weightChartContainer'), {
+        type: 'line',
+        data: {
+            labels: weightData.labels,
+            datasets: [{
+                label: 'Weight',
+                data: weightData.values,
+                borderColor: 'green',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+
+    var saturationChart = new Chart(document.getElementById('saturationChartContainer'), {
+        type: 'line',
+        data: {
+            labels: saturationData.labels,
+            datasets: [{
+                label: 'Saturation',
+                data: saturationData.values,
+                borderColor: 'purple',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+</script>

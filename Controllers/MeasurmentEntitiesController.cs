@@ -79,12 +79,12 @@ namespace WebApplication3.Controllers
                     Value = model.Value,
                     UserId = model.UserId,
                     MeasurementName = model.MeasurementName,
-                    BodyPart = model.BodyPart 
+                    BodyPart = model.BodyPart
                 };
 
                 if (model.MeasurementName == MeasurementName.Observation)
                 {
-                    measurement.Value = null; 
+                    measurement.Value = null;
                     measurement.BodyPart = model.BodyPart;
                 }
                 else
@@ -147,7 +147,7 @@ namespace WebApplication3.Controllers
                 measurementEntity.Comment = model.Comment;
                 measurementEntity.TreatmentTime = model.TreatmentTime;
                 measurementEntity.BodyPart = model.BodyPart;
-                measurementEntity.InsertionTime =model.InsertionTime;
+                measurementEntity.InsertionTime = model.InsertionTime;
                 measurementEntity.SafeRange = model.SafeRange;
                 measurementEntity.Value = model.Value;
                 measurementEntity.MeasurementName = model.MeasurementName;
@@ -160,7 +160,7 @@ namespace WebApplication3.Controllers
             return View(model);
         }
 
-        // GET: Profile/Delete
+        // GET: Measurement/Delete
         public IActionResult Delete()
         {
             var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
@@ -184,7 +184,7 @@ namespace WebApplication3.Controllers
             return View(measuremnt);
         }
 
-        // POST: Profile/Delete
+        // POST: Measurement/Delete
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed()
@@ -199,6 +199,51 @@ namespace WebApplication3.Controllers
 
             return RedirectToAction("Index", "MeasurmentEntities");
         }
-    
+
+        // GET: Charts
+        public async Task<IActionResult> Charts()
+        {
+            var measurements = await _context.Measurement.ToListAsync();
+            var viewModel = new List<MeasurementVm>();
+
+            foreach (var measurement in measurements)
+            {
+                viewModel.Add(new MeasurementVm
+                {
+                    Id = measurement.Id,
+                    Comment = measurement.Comment,
+                    TreatmentTime = measurement.TreatmentTime,
+                    InsertionTime = measurement.InsertionTime,
+                    BodyPart = measurement.BodyPart,
+                    SafeRange = measurement.SafeRange,
+                    Value = measurement.Value,
+                    MeasurementName = measurement.MeasurementName,
+                    UserId = measurement.UserId
+                });
+            }
+
+            return View(viewModel);
+        }
+        public IActionResult GenerateChartData()
+        {
+            var measurements = _context.Measurement.ToList();
+
+            // Tutaj można przetwarzać dane pomiarowe i przygotowywać je do wyświetlenia na wykresie
+
+            // Przykładowe przygotowanie danych dla wykresu
+            var viewModel = new List<MeasurementVm>();
+
+            foreach (var measurement in measurements)
+            {
+                viewModel.Add(new MeasurementVm
+                {
+                    InsertionTime = measurement.InsertionTime,
+                    Value = measurement.Value
+                });
+            }
+
+            return Json(viewModel); // Zwrócenie danych w formie JSON do wykorzystania w wykresie na froncie
+        }
+
     }
 }
