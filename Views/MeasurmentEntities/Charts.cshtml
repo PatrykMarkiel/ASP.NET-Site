@@ -4,6 +4,16 @@
 @{
     ViewData["Title"] = "Measurement Chart";
 
+    var measurementUnits = new Dictionary<string, string>
+    {
+        { "Pulse", "bpm" },
+        { "Height", "cm" },
+        { "Weight", "kg" },
+        { "Saturation", "%" }, 
+        { "BodyMeasure", "cm" }
+
+    };
+
     var uniqueMeasurementNames = Model.Select(m => m.MeasurementName).Distinct().Where(measurementName => measurementName.ToString() != "Observation").ToList();
 
     var random = new Random();
@@ -28,14 +38,14 @@
     var randomColor = String.Format("#{0:X6}", random.Next(0x1000000));
 
     <div class="container" style="display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-        <div style="width: 800px;">
+        <div style="width: 900px;">
             <canvas id="@("myChart_" + measurementName)" style="width:100%;max-width:100%"></canvas>
         </div>
-        <div style="margin-left: 20px;">
-            <h3>@measurementName</h3>
-            <table border="1" style="text-align: center; margin: auto;">
+        <div style="margin-left: 20px; width: 400px;">
+            <h3><strong>@measurementName</strong> (@measurementUnits[measurementName.ToString()])</h3>
+            <table border="1" style="text-align: center; margin: auto; width: 100%;">
                 <tr>
-                    <th>Treatment Time</th>
+                    <th>Date</th>
                     <th>Value</th>
                     <th>Difference</th>
                 </tr>
@@ -48,8 +58,9 @@
                             @if (i > 0)
                             {
                                 var difference = (measurementData[i].Value ?? 0) - (measurementData[i - 1].Value ?? 0);
-                                var sign = difference > 0 ? "+" : difference < 0 ? "" : "-";
-                                <span>@sign @Math.Abs(difference)</span>
+                                var sign = difference > 0 ? "+" : difference < 0 ? "-" : "";
+                                var absDifference = Math.Abs(difference);
+                                <span>@sign@(absDifference > 0 ? absDifference.ToString() : "")</span>
                             }
                             else
                             {
@@ -61,6 +72,7 @@
             </table>
         </div>
     </div>
+
 
     <script>
         var xValues_@measurementName = @Html.Raw(Json.Serialize(xValues));

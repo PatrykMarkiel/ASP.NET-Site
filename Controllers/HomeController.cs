@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using WebApplication3.Data;
 using WebApplication3.Models;
 using WebApplication3.Models.ViewModel;
 
@@ -8,20 +10,41 @@ namespace WebApplication3.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly ApplicationDbContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
         {
             _logger = logger;
+            _context = context;
         }
-
+        //Chart
+        [HttpGet]
         public IActionResult Index()
         {
-            var viewModel = new HomeViewModel();
-            viewModel.Weight = new List<double> { 90, 90, 91, 93, 91, 93, 92, 90, 89, 82, 87, 88 };
-            viewModel.BodyCircumference = new List<double> { 90, 89, 95, 93, 90, 95 };
-            viewModel.Height = new List<int> { 178, 178, 179, 180, 181, 183 };
-            viewModel.BMI = Math.Round(viewModel.Weight.ElementAt(viewModel.Weight.Count - 1) /(((viewModel.Height.ElementAt(viewModel.Height.Count - 1) / 100.0) *(viewModel.Height.ElementAt(viewModel.Height.Count - 1) / 100.0))), 1);
-            return View(viewModel);
+            var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
+            var measurementEntities = _context.Measurement.Where(p => p.UserId == user.Id).ToList();
+
+            if (measurementEntities.Any())
+            {
+                List<MeasurementVm> modelInformation = measurementEntities.Select(measurement => new MeasurementVm
+                {
+                    Id = measurement.Id,
+                    Comment = measurement.Comment,
+                    TreatmentTime = measurement.TreatmentTime,
+                    InsertionTime = measurement.InsertionTime,
+                    BodyPart = measurement.BodyPart,
+                    SafeRange = measurement.SafeRange,
+                    Value = measurement.Value,
+                    MeasurementName = measurement.MeasurementName,
+                    UserId = measurement.UserId
+                }).ToList();
+
+                return View(modelInformation);
+            }
+            else
+            {
+                return View();
+            }
         }
 
         public IActionResult Privacy()

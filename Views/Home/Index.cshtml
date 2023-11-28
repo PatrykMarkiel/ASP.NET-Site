@@ -1,6 +1,16 @@
 ﻿@using WebApplication3.Models.ViewModel;
+@using WebApplication3.Helpers
+@model IEnumerable<MeasurementVm>
+
 @{
     ViewData["Title"] = "Home Page";
+
+    var measurementUnits = new Dictionary<string, string>
+    {
+        { "Weight", "(kg)" }
+    };
+
+    var random = new Random();
 }
 
 <div class="container">
@@ -8,30 +18,188 @@
     {
         <br />
         <div>
-            <div class="my-5 p-4 bg-light text-white center">
-                <!-- Tutaj możesz umieścić dodatkową zawartość dla zalogowanego użytkownika -->
+            <!--Chart Zone-->
+            <div style="my-5 p-4 bg-light text-white center">
+                <div style="width: 900px; margin: auto;">
+                    @{
+                        var measurementName = "Weight";
+                        var measurementData = Model.Where(m => m.MeasurementName.ToString() == measurementName).OrderBy(m => m.TreatmentTime.Date).ToList();
+
+                        var xValues = measurementData.Select(m => m.TreatmentTime.Date.ToString("yyyy-MM-dd")).Distinct().OrderBy(d => d).ToList();
+
+                        var randomColor = String.Format("#{0:X6}", random.Next(0x1000000));
+                    }
+
+                    <h3><strong>@measurementName @measurementUnits[measurementName]</strong></h3>
+                    <canvas id="@("myChart_" + measurementName)" style="width:100%;max-width:800px"></canvas>
+                </div>
+
+                <script>
+                    var xValues_@measurementName = @Html.Raw(Json.Serialize(xValues));
+
+                    var chartData_@measurementName = {
+                        labels: xValues_@measurementName,
+                            datasets: [{
+                                label: '@measurementName',
+                                data: @Html.Raw(Json.Serialize(measurementData.Select(m => m.Value ?? 0))),
+                                borderColor: '@randomColor',
+                                fill: false
+                            }]
+                    };
+
+                    new Chart("@("myChart_" + measurementName)", {
+                        type: "line",
+                        data: chartData_@measurementName,
+                        options: {
+                        legend: { display: true },
+                        scales: {
+                            x: {
+                                display: true,
+                                title: {
+                                    display: true,
+                                    text: 'Treatment Date'
+                                }
+                            },
+                            y: {
+                                display: true,
+                                title: {
+                                    display: true,
+                                    text: 'Value'
+                                }
+                            }
+                        }
+                    }
+                    });
+                </script>
             </div>
         </div>
-
+        <!--Profile Zone-->
         <div class="row">
             <div class="col-md-4">
-                <div class="my-2 p-3 bg-danger text-white text-center square">Div 2</div>
+                <div class="my-2 text-white text-left square" style="background-color: rgba(112, 128, 144, 0.7); padding-left: 30px; padding-top: 20px;">
+                    <p><h3><b>Profile Zone:</b></h3></p>
+                    <b>Name, Surname, BloodType</b>
+                </div>
+            </div>
+
+            <!--BMI Zone-->
+            <div class="col-md-4">
+                <div class="my-2 text-white text-center square" style="background-color:rgba(112, 128, 144, 0.7); ">
+                    @{
+                        var weightMeasurement = Model.FirstOrDefault(m => m.MeasurementName.ToString() == "Weight");
+                        var heightMeasurement = Model.FirstOrDefault(m => m.MeasurementName.ToString() == "Height");
+
+                        double weight = weightMeasurement?.Value ?? 0;
+                        double height = heightMeasurement?.Value ?? 0;
+
+                        if (weight > 0 && height > 0)
+                        {
+                            var bmiCalculator = new BMI.BMICalculator();
+                            double bmiResult = bmiCalculator.CalculateBMI(weight, height);
+                            string bmiCategory = bmiCalculator.GetBMICategory(bmiResult);
+
+                            string bgColor = "";
+                            string bmiBorder = "";
+                            string bmiText = "BMI";
+                            string bmiTextColor = "white";
+                            string bmiCategoryDescription = "";
+                            switch (bmiCategory)
+                            {
+                                case "Underweight":
+                                    bgColor = "#add8e6";
+                                    bmiCategoryDescription = "Underweight";
+                                    bmiBorder = "#70AFD4";
+                                    break;
+                                case "Normal weight":
+
+                                    bgColor = "#90EE90";
+                                    bmiCategoryDescription = "Normal weight";
+                                    bmiBorder = "#55C951";
+                                    break;
+                                case "Overweight":
+                                    bgColor = "#E6E600";
+                                    bmiCategoryDescription = "Overweight";
+                                    bmiBorder = "#D6D600";
+                                    break;
+                                case "Obese Class I":
+                                    bgColor = "#D6A80F";
+                                    bmiCategoryDescription = "Obese Class I";
+                                    bmiBorder = "#B08A0C";
+                                    break;
+                                case "Obese Class II":
+                                    bgColor = "#ff781f";
+                                    bmiCategoryDescription = "Obese Class II";
+                                    bmiBorder = "#E06A1B";
+                                    break;
+                                case "Obese Class III":
+                                    bgColor = "#FF0000";
+                                    bmiCategoryDescription = "Obese Class III";
+                                    bmiBorder = "#BF0000";
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                            <div style="display: flex; align-items: center;">
+                                <div style="width: 150px; height: 150px; margin: 20px; background-color: @bgColor; border: 5px solid @bmiBorder; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: @bmiTextColor; font-weight: bold;">
+                                    <div style="text-align: center;">
+                                        <b style="font-size: 20px;">@bmiText</b>
+                                        <div>
+                                            <span style="font-size: 36px;">@bmiResult.ToString("F1")</span>
+                                        </div>
+                                        <div style="text-align: center;">
+                                            <p>@bmiCategoryDescription</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div style="text-align: left; margin-left: 20px;">
+                                    <p><b>Weight: @weight kg</b></p>
+                                    <p><b>Height: @height cm</b></p>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            if (weight > 0 && height == 0)
+                            {
+                                <p>Add Height to display BMI</p>
+                            }
+                            else if (weight == 0 && height > 0)
+                            {
+                                <p>Add Weight to display BMI</p>
+                            }
+                            else
+                            {
+                                <p>Add Weight and Height to display BMI</p>
+                            }
+                        }
+                    }
+                </div>
             </div>
             <div class="col-md-4">
-                <div class="my-2 p-3 bg-danger text-white text-center square">Div 3</div>
-            </div>
-            <div class="col-md-4">
-                <div class="my-2 p-3 bg-danger text-white text-center square">Div 4</div>
+                <div class="my-2 text-white text-center square" style="background-color:rgba(112, 128, 144, 0.7); ">
+                </div>
             </div>
         </div>
 
         <div class="row justify-content-center">
             <div class="col-md-4">
-                <div class="my-2 p-3 bg-secondary text-white text-center square">Div 5</div>
+                <div class="my-2 text-white text-center square" style="background-color:rgba(112, 128, 144, 0.7); ">
+                </div>
             </div>
-            <div class="col-md-4">
-                <div class="my-2 p-3 bg-secondary text-white text-center square">Div 6</div>
-            </div>
+            <!--Profile Zone-->
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="my-2 text-white text-left square" style="background-color: rgba(112, 128, 144, 0.7); padding-left: 30px; padding-top: 20px;">
+                        <p><h3><b>Device Zone:</b></h3></p>
+                        <b>DeviceType, name</b>
+                        <b>DeviceType, name</b>
+                        <b>DeviceType, name</b>
+                        <b>DeviceType, name</b>
+                    </div>
+                </div>
         </div>
     }
     else
@@ -45,7 +213,7 @@
 </div>
 <style>
     .square {
-        height: 50px;
+        height: 200px;
         border: 1px solid #ccc;
         border-radius: 5px;
     }
