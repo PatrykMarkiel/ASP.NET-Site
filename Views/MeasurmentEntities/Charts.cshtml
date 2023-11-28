@@ -11,28 +11,56 @@
 
 @foreach (var measurementName in uniqueMeasurementNames)
 {
-    var dataValues = new List<double?>();
     var measurementData = Model.Where(m => m.MeasurementName == measurementName).OrderBy(m => m.TreatmentTime.Date).ToList();
 
     var xValues = measurementData.Select(m => m.TreatmentTime.Date.ToString("yyyy-MM-dd")).Distinct().OrderBy(d => d).ToList();
 
-    foreach (var date in xValues)
-    {
-        var measurementForDate = measurementData.FirstOrDefault(m => m.TreatmentTime.Date.ToString("yyyy-MM-dd") == date);
+    var differences = new List<double?>();
 
-        if (measurementForDate != null)
-        {
-            dataValues.Add(measurementForDate.Value ?? 0);
-        }
-        else
-        {
-            dataValues.Add(null);
-        }
+    for (var i = 0; i < measurementData.Count; i++)
+    {
+        var currentValue = measurementData[i].Value ?? 0;
+        var previousValue = i > 0 ? (measurementData[i - 1].Value ?? 0) : 0;
+
+        differences.Add(currentValue - previousValue);
     }
 
     var randomColor = String.Format("#{0:X6}", random.Next(0x1000000));
 
-    <canvas id="@("myChart_" + measurementName)" style="width:100%;max-width:800px"></canvas>
+    <div class="container" style="display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+        <div style="width: 800px;">
+            <canvas id="@("myChart_" + measurementName)" style="width:100%;max-width:100%"></canvas>
+        </div>
+        <div style="margin-left: 20px;">
+            <h3>@measurementName</h3>
+            <table border="1" style="text-align: center; margin: auto;">
+                <tr>
+                    <th>Treatment Time</th>
+                    <th>Value</th>
+                    <th>Difference</th>
+                </tr>
+                @for (var i = 0; i < measurementData.Count; i++)
+                {
+                    <tr>
+                        <td>@measurementData[i].TreatmentTime.Date.ToString("yyyy-MM-dd")</td>
+                        <td>@(measurementData[i].Value ?? 0)</td>
+                        <td>
+                            @if (i > 0)
+                            {
+                                var difference = (measurementData[i].Value ?? 0) - (measurementData[i - 1].Value ?? 0);
+                                var sign = difference > 0 ? "+" : difference < 0 ? "" : "-";
+                                <span>@sign @Math.Abs(difference)</span>
+                            }
+                            else
+                            {
+                                <span>-</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </table>
+        </div>
+    </div>
 
     <script>
         var xValues_@measurementName = @Html.Raw(Json.Serialize(xValues));
@@ -41,7 +69,7 @@
             labels: xValues_@measurementName,
                 datasets: [{
                     label: '@measurementName',
-                    data: @Html.Raw(Json.Serialize(dataValues)),
+                    data: @Html.Raw(Json.Serialize(measurementData.Select(m => m.Value ?? 0))),
                     borderColor: '@randomColor',
                     fill: false
                 }]
