@@ -4,86 +4,71 @@
 @{
     ViewData["Title"] = "Measurement Chart";
 
-    var uniqueTreatmentDates = Model.Select(m => m.TreatmentTime.Date).Distinct().OrderBy(d => d).ToList();
+    var uniqueMeasurementNames = Model.Select(m => m.MeasurementName).Distinct().Where(measurementName => measurementName.ToString() != "Observation").ToList();
 
-    var xValues = new List<string>();
-    foreach (var date in uniqueTreatmentDates)
-    {
-        xValues.Add(date.ToString("yyyy-MM-dd"));
-    }
-
-    var datasets = new List<object>();
     var random = new Random();
-
-    var measurementNames = Model.Select(m => m.MeasurementName).Distinct().ToList();
-    foreach (var measurementName in measurementNames)
-    {
-        if (measurementName != null && measurementName.ToString() != "Observation")
-        {
-            var dataValues = new List<double?>();
-
-            foreach (var date in uniqueTreatmentDates)
-            {
-                var measurementForDate = Model.FirstOrDefault(m => m.MeasurementName == measurementName && m.TreatmentTime.Date == date);
-
-                if (measurementForDate != null)
-                {
-                    dataValues.Add(measurementForDate.Value ?? 0);
-                }
-                else
-                {
-                    dataValues.Add(null);
-                }
-            }
-
-            var randomColor = String.Format("#{0:X6}", random.Next(0x1000000));
-
-            datasets.Add(new
-            {
-                label = measurementName.ToString(),
-                data = dataValues,
-                borderColor = randomColor,
-                fill = false
-            });
-        }
-    }
 }
 
-<canvas id="myChart" style="width:100%;max-width:1200px"></canvas>
+@foreach (var measurementName in uniqueMeasurementNames)
+{
+    var dataValues = new List<double?>();
+    var measurementData = Model.Where(m => m.MeasurementName == measurementName).OrderBy(m => m.TreatmentTime.Date).ToList();
 
-@section Scripts {
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.6.0/Chart.min.js"></script>
+    var xValues = measurementData.Select(m => m.TreatmentTime.Date.ToString("yyyy-MM-dd")).Distinct().OrderBy(d => d).ToList();
+
+    foreach (var date in xValues)
+    {
+        var measurementForDate = measurementData.FirstOrDefault(m => m.TreatmentTime.Date.ToString("yyyy-MM-dd") == date);
+
+        if (measurementForDate != null)
+        {
+            dataValues.Add(measurementForDate.Value ?? 0);
+        }
+        else
+        {
+            dataValues.Add(null);
+        }
+    }
+
+    var randomColor = String.Format("#{0:X6}", random.Next(0x1000000));
+
+    <canvas id="@("myChart_" + measurementName)" style="width:100%;max-width:800px"></canvas>
 
     <script>
-        var xValues = @Html.Raw(Json.Serialize(xValues));
+        var xValues_@measurementName = @Html.Raw(Json.Serialize(xValues));
 
-        var chartData = {
-            labels: xValues,
-            datasets: @Html.Raw(Json.Serialize(datasets))
-                };
+        var chartData_@measurementName = {
+            labels: xValues_@measurementName,
+                datasets: [{
+                    label: '@measurementName',
+                    data: @Html.Raw(Json.Serialize(dataValues)),
+                    borderColor: '@randomColor',
+                    fill: false
+                }]
+        };
 
-        new Chart("myChart", {
+        new Chart("@("myChart_" + measurementName)", {
             type: "line",
-            data: chartData,
+            data: chartData_@measurementName,
             options: {
-                legend: { display: true },
-                scales: {
-                    x: {
+            legend: { display: true },
+            scales: {
+                x: {
+                    display: true,
+                    title: {
                         display: true,
-                        title: {
-                            display: true,
-                            text: 'Treatment Date'
-                        }
-                    },
-                    y: {
+                        text: 'Treatment Date'
+                    }
+                },
+                y: {
+                    display: true,
+                    title: {
                         display: true,
-                        title: {
-                            display: true,
-                            text: 'Value'
-                        }
+                        text: 'Value'
                     }
                 }
             }
-        });
+        }
+                });
     </script>
 }
