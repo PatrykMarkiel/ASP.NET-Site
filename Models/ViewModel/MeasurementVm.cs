@@ -6,7 +6,7 @@ namespace  WebApplication3.Models.ViewModel
     public class MeasurementVm
     {
         public Guid Id { get; set; }
-        public string Comment { get; set; }
+        public string? Comment { get; set; }
         public DateTime TreatmentTime { get; set; }
         public DateTime InsertionTime { get; set; }
         public BodyPart? BodyPart { get; set; }

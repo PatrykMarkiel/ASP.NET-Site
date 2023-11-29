@@ -170,7 +170,7 @@ namespace WebApplication3.Controllers
 
             var measuremnt = new MeasurementVm
             {
-                Id = Guid.NewGuid(),
+                Id = model.Id,
                 Comment = model.Comment,
                 Value = model.Value,
                 TreatmentTime = model.TreatmentTime,
@@ -183,6 +183,7 @@ namespace WebApplication3.Controllers
 
             return View(measuremnt);
         }
+
 
         // POST: Measurement/Delete
         [HttpPost, ActionName("Delete")]
