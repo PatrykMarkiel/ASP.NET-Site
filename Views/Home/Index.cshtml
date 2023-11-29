@@ -38,57 +38,64 @@
                     var xValues_@measurementName = @Html.Raw(Json.Serialize(xValues));
 
                     var chartData_@measurementName = {
-                        labels: xValues_@measurementName,
-                            datasets: [{
-                                label: '@measurementName',
-                                data: @Html.Raw(Json.Serialize(measurementData.Select(m => m.Value ?? 0))),
-                                borderColor: '@randomColor',
-                                fill: false
-                            }]
+                    labels: xValues_@measurementName,
+                    datasets: [{
+                    label: '@measurementName',
+                    data: @Html.Raw(Json.Serialize(measurementData.Select(m => m.Value ?? 0))),
+                    borderColor: '@randomColor',
+                    fill: false
+                    }]
                     };
 
                     new Chart("@("myChart_" + measurementName)", {
-                        type: "line",
-                        data: chartData_@measurementName,
-                        options: {
-                        legend: { display: true },
-                        scales: {
-                            x: {
-                                display: true,
-                                title: {
-                                    display: true,
-                                    text: 'Treatment Date'
-                                }
-                            },
-                            y: {
-                                display: true,
-                                title: {
-                                    display: true,
-                                    text: 'Value'
-                                }
-                            }
-                        }
+                    type: "line",
+                    data: chartData_@measurementName,
+                    options: {
+                    legend: { display: true },
+                    scales: {
+                    x: {
+                    display: true,
+                    title: {
+                    display: true,
+                    text: 'Treatment Date'
+                    }
+                    },
+                    y: {
+                    display: true,
+                    title: {
+                    display: true,
+                    text: 'Value'
+                    }
+                    }
+                    }
                     }
                     });
                 </script>
             </div>
         </div>
-        <!--Profile Zone-->
+        <!--Pulse Zone-->
         <div class="row">
             <div class="col-md-4">
                 <div class="my-2 text-white text-left square" style="background-color: rgba(112, 128, 144, 0.7); padding-left: 30px; padding-top: 20px;">
                     <p><h3><b>Profile Zone:</b></h3></p>
-                    <b>Name, Surname, BloodType</b>
+                    <b>
+                        Name, Surname, BloodType,Date of Birth, age
+                    </b>
                 </div>
             </div>
-
             <!--BMI Zone-->
             <div class="col-md-4">
                 <div class="my-2 text-white text-center square" style="background-color:rgba(112, 128, 144, 0.7); ">
                     @{
-                        var weightMeasurement = Model.FirstOrDefault(m => m.MeasurementName.ToString() == "Weight");
-                        var heightMeasurement = Model.FirstOrDefault(m => m.MeasurementName.ToString() == "Height");
+                        var weightMeasurement = Model
+                        .Where(m => m.MeasurementName.ToString() == "Weight")
+                        .OrderByDescending(m => m.TreatmentTime)
+                        .FirstOrDefault();
 
+                        var heightMeasurement = Model
+                        .Where(m => m.MeasurementName.ToString() == "Height")
+                        .OrderByDescending(m => m.TreatmentTime)
+                        .FirstOrDefault();
                         double weight = weightMeasurement?.Value ?? 0;
                         double height = heightMeasurement?.Value ?? 0;
 
@@ -159,6 +166,7 @@
                                     <p><b>Height: @height cm</b></p>
                                 </div>
                             </div>
+
                         }
                         else
                         {
@@ -178,43 +186,41 @@
                     }
                 </div>
             </div>
+            <!--Pulse Zone-->
             <div class="col-md-4">
-                <div class="my-2 text-white text-center square" style="background-color:rgba(112, 128, 144, 0.7); ">
+                <div class="my-2 text-white text-left square" style="background-color: rgba(112, 128, 144, 0.7); padding-left: 30px; padding-top: 20px;">
+                    <p><h3><b>Pulse Zone:</b></h3></p>
+                    <b>
+                        Value
+                    </b>
+                </div>
+            </div>
+            </div>
+        <!--Future Test Zone-->
+        <div class="row justify-content-center">
+            <div class="col-md-4">
+                <div class="my-2 p-3  text-white text-left square" style="background-color: rgba(112, 128, 144, 0.7); padding-left: 30px; padding-top: 20px;">
+                    <p><h3><b>Tests Zone:</b></h3></p>
+                    <p><b>Here you will have tests in the future</b></p>
+                </div>
+            </div>
+            <!--Device Zone-->
+            <div class="col-md-4">
+                <div class="my-2 text-white text-left square" style="background-color: rgba(112, 128, 144, 0.7); padding-left: 30px; padding-top: 10px;">
+                    <p><h3><b>Device Zone:</b></h3></p>
+                    <p><b>DeviceType, name</b></p>
+                    <p><b>DeviceType, name</b></p>
+                    <p><b>DeviceType, name</b></p>
                 </div>
             </div>
         </div>
 
-        <div class="row justify-content-center">
-            <div class="col-md-4">
-                <div class="my-2 text-white text-center square" style="background-color:rgba(112, 128, 144, 0.7); ">
-                </div>
-            </div>
-            <!--Profile Zone-->
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="my-2 text-white text-left square" style="background-color: rgba(112, 128, 144, 0.7); padding-left: 30px; padding-top: 20px;">
-                        <p><h3><b>Device Zone:</b></h3></p>
-                        <b>DeviceType, name</b>
-                        <b>DeviceType, name</b>
-                        <b>DeviceType, name</b>
-                        <b>DeviceType, name</b>
-                    </div>
-                </div>
-        </div>
+
+        <style>
+            .square {
+            height: 200px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            }
+        </style>
     }
-    else
-    {
-        <div class="row">
-            <div class="col-12">
-                <div class="my-5 p-4 bg-secondary text-white text-center">Login to do test or check your data</div>
-            </div>
-        </div>
-    }
-</div>
-<style>
-    .square {
-        height: 200px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-    }
-</style>

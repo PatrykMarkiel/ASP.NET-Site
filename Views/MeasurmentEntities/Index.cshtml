@@ -7,9 +7,11 @@
 <div class="d-flex justify-content-between align-items-center">
     <h1 class="mr-3"><b>Measurements</b></h1>
     <div class="flex-grow-1"></div>
-    <a class="btn btn-primary" asp-action="Create">Create New</a>
-    <a class="btn btn-primary" asp-action="Charts">Charts</a>
+    <a class="btn btn-primary " style="height: 38px;" asp-action="Create">Create</a>
+    <a class="btn btn-primary mx-1" style="height: 38px;" asp-action="Charts">Charts</a>
+
 </div>
+
 <hr />
 
 @foreach (var measurementType in Model.Select(m => m.MeasurementName).Distinct())
