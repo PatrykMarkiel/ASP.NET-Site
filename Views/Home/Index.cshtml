@@ -73,7 +73,7 @@
                 </script>
             </div>
         </div>
-        <!--Pulse Zone-->
+        <!--Profile Zone-->
         <div class="row">
             <div class="col-md-4">
                 <div class="my-2 text-white text-left square" style="background-color: rgba(112, 128, 144, 0.7); padding-left: 30px; padding-top: 20px;">
@@ -188,14 +188,93 @@
             </div>
             <!--Pulse Zone-->
             <div class="col-md-4">
-                <div class="my-2 text-white text-left square" style="background-color: rgba(112, 128, 144, 0.7); padding-left: 30px; padding-top: 20px;">
-                    <p><h3><b>Pulse Zone:</b></h3></p>
-                    <b>
-                        Value
-                    </b>
+                <div class="my-2 text-white text-left square" style="background-color: rgba(112, 128, 144, 0.7); padding-left: 20px; padding-top: 20px;">
+                    @{
+                        var pulseMeasurements = Model.Where(m => m.MeasurementName.ToString() == "Pulse")
+                        .OrderByDescending(m => m.TreatmentTime)
+                        .FirstOrDefault();
+
+                        if (pulseMeasurements != null)
+                        {
+                            var pulseValue = pulseMeasurements.Value ?? 0;
+                            var normalRangeMin = 40;
+                            var normalRangeMax = 120;
+
+                            string pulseStatus = "";
+                            string pulseClass = "";
+
+                            if (pulseValue >= normalRangeMin && pulseValue <= normalRangeMax)
+                            {
+                                pulseStatus = "Normal";
+                                pulseClass = "heart";
+
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <div id="heart" class="@pulseClass">
+                                                <div style="padding-left: 120px; width:500px">
+                                                    <h3><b><span>Your pulse</span></b></h3>
+                                                    <h6> <b><span class="pulse-value">@pulseValue bpm</span></b></h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                // Additional information for the norm
+                                <div class="text-center" style="background-color: #DFF0D8; border: 1px solid #3C763D; padding: 10px; border-radius: 5px; margin-right:15px;">
+                                    <p style="color: #3C763D; font-weight: bold;">Your pulse is good.</p>
+                                </div>
+
+
+                            }
+                            else
+                            {
+                                pulseStatus = "Not Normal";
+                                pulseClass = "heart-abnormal";
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <div id="heart" class="@pulseClass">
+                                                <div style="padding-left: 120px; width:500px">
+                                                    <h3><b><span>Your pulse</span></b></h3>
+                                                    <h6> <b><span class="pulse-value">@pulseValue bpm</span></b></h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                // Additional information for deviations from the norm
+                                <div class="text-center">
+                                    @if (pulseValue < normalRangeMin || pulseValue > normalRangeMax)
+                                    {
+                                        <div class="alert alert-danger" role="alert" style="font-size: 14px; display: inline-block; height: 70px; margin-right: 15px; margin-top: 0;">
+                                            <p class="mb-0">
+                                                Your pulse is @if (pulseValue < normalRangeMin)
+                                                {
+                                                    <span class="text-danger">low.</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-danger">high.</span>
+                                                } Contact your doctor for more information.
+                                            </p>
+                                        </div>
+                                    }
+                                </div>
+
+
+                            }
+                        }
+                        else
+                        {
+                            <p>No pulse measurements available</p>
+                        }
+                    }
                 </div>
             </div>
-            </div>
+        </div>
         <!--Future Test Zone-->
         <div class="row justify-content-center">
             <div class="col-md-4">
@@ -221,6 +300,41 @@
             height: 200px;
             border: 1px solid #ccc;
             border-radius: 5px;
+            }
+
+            #heart {
+                position: relative;
+                width: 100px;
+                height: 100px;
+                margin: 10 auto;
+                border: 0px solid #8B0000; 
+                border-radius: 5px;
+            }
+
+                #heart:before,
+                #heart:after {
+                    position: absolute;
+                    content: "";
+                    left: 50px;
+                    top: 0;
+                    width: 50px;
+                    height: 80px;
+                    background: red;
+                    border-radius: 50px 50px 0 0;
+                    transform: rotate(-45deg);
+                    transform-origin: 0 100%;
+                }
+
+                #heart:after {
+                    left: 0;
+                    transform: rotate(45deg);
+                    transform-origin: 100% 100%;
+                }
+
+            .heart-abnormal:before,
+            .heart-abnormal:after {
+                background: #8B0000; /* Ciemnoczerwone tło dla serca */
+
             }
         </style>
     }
