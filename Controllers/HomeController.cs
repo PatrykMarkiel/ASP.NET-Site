@@ -17,29 +17,37 @@ namespace WebApplication3.Controllers
             _logger = logger;
             _context = context;
         }
-        //Chart
+
+        // Strona logowania / Strona główna
         [HttpGet]
         public IActionResult Index()
         {
-            var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
-            var measurementEntities = _context.Measurement.Where(p => p.UserId == user.Id).ToList();
-
-            if (measurementEntities.Any())
+            if (User.Identity.IsAuthenticated)
             {
-                List<MeasurementVm> modelInformation = measurementEntities.Select(measurement => new MeasurementVm
-                {
-                    Id = measurement.Id,
-                    Comment = measurement.Comment,
-                    TreatmentTime = measurement.TreatmentTime,
-                    InsertionTime = measurement.InsertionTime,
-                    BodyPart = measurement.BodyPart,
-                    SafeRange = measurement.SafeRange,
-                    Value = measurement.Value,
-                    MeasurementName = measurement.MeasurementName,
-                    UserId = measurement.UserId
-                }).ToList();
+                var user = _context.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
+                var measurementEntities = _context.Measurement.Where(p => p.UserId == user.Id).ToList();
 
-                return View(modelInformation);
+                if (measurementEntities.Any())
+                {
+                    List<MeasurementVm> modelInformation = measurementEntities.Select(measurement => new MeasurementVm
+                    {
+                        Id = measurement.Id,
+                        Comment = measurement.Comment,
+                        TreatmentTime = measurement.TreatmentTime,
+                        InsertionTime = measurement.InsertionTime,
+                        BodyPart = measurement.BodyPart,
+                        SafeRange = measurement.SafeRange,
+                        Value = measurement.Value,
+                        MeasurementName = measurement.MeasurementName,
+                        UserId = measurement.UserId
+                    }).ToList();
+
+                    return View(modelInformation);
+                }
+                else
+                {
+                    return View();
+                }
             }
             else
             {

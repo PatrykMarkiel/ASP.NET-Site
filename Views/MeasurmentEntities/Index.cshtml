@@ -9,115 +9,109 @@
     <div class="flex-grow-1"></div>
     <a class="btn btn-primary " style="height: 38px;" asp-action="Create">Create</a>
     <a class="btn btn-primary mx-1" style="height: 38px;" asp-action="Charts">Charts</a>
-
 </div>
 
 <hr />
 
-@foreach (var measurementType in Model.Select(m => m.MeasurementName).Distinct())
+@if (Model != null && Model.Any())
 {
-    <h4><b>@measurementType</b></h4>
+    @foreach (var measurementType in Model.Select(m => m.MeasurementName).Distinct())
+    {
+        <h4><b>@measurementType</b></h4>
 
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Measurement</th>
-                <th>Comment</th>
-                @if (measurementType.ToString() == "Observation")
-                {
-                    <th>Body Part</th>
-                }
-                else
-                {
-                    <th class="text-center">Value</th>
-                    <th class="text-center">Difference</th>
-                }
-                <th class="text-center">Safe Range</th>
-                <th class="text-center">Treatment Time</th>
-                <th class="text-center">Insertion Time</th>
-                <th class="border-end-0"></th>
-            </tr>
-        </thead>
-        <tbody>
-            @{
-                var previousValue = 0.0;
-            }
-            @foreach (var item in Model.Where(m => m.MeasurementName == measurementType))
-            {
-                var unit = "unit";
-                var nameToUnit = item.MeasurementName.ToString();
-
-                switch (nameToUnit)
-                {
-                    case "Pulse":
-                        unit = "bpm";
-                        break;
-                    case "Height":
-                    case "BodyMeasure":
-                        unit = "cm";
-                        break;
-                    case "Weight":
-                        unit = "kg";
-                        break;
-                    case "Saturation":
-                        unit = "%";
-                        break;
-                }
-
-                var currentValue = Convert.ToDouble(item.Value);
-                var difference = currentValue - previousValue;
-                previousValue = currentValue;
-
+        <table class="table table-bordered">
+            <thead>
                 <tr>
-                    <td>@Html.DisplayFor(modelItem => item.MeasurementName)</td>
-                    <td class="comment col-md-4 text-break">@Html.DisplayFor(modelItem => item.Comment)</td>
-
+                    <th>Measurement</th>
+                    <th>Comment</th>
                     @if (measurementType.ToString() == "Observation")
                     {
-                        <td>@Html.DisplayFor(modelItem => item.BodyPart)</td>
+                        <th>Body Part</th>
                     }
                     else
                     {
-                        <td class="text-center">@Html.DisplayFor(modelItem => item.Value) @unit</td>
+                        <th class="text-center">Value</th>
+                        <th class="text-center">Difference</th>
+                    }
+                    <th class="text-center">Safe Range</th>
+                    <th class="text-center">Treatment Time</th>
+                    <th class="text-center">Insertion Time</th>
+                    <th class="border-end-0"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    var previousValue = 0.0;
+                }
+                @foreach (var item in Model.Where(m => m.MeasurementName == measurementType))
+                {
+                    var unit = "unit";
+                    var nameToUnit = item.MeasurementName.ToString();
 
-                        if (difference != previousValue && difference != 0)
+                    switch (nameToUnit)
+                    {
+                        //... (cases for different measurement types)
+                    }
+
+                    var currentValue = Convert.ToDouble(item.Value);
+                    var difference = currentValue - previousValue;
+                    previousValue = currentValue;
+
+                    <tr>
+                        <td>@Html.DisplayFor(modelItem => item.MeasurementName)</td>
+                        <td class="comment col-md-4 text-break">@Html.DisplayFor(modelItem => item.Comment)</td>
+
+                        @if (measurementType.ToString() == "Observation")
                         {
-                            if (difference > 0)
-                            {
-                                <td class="text-center">+@difference</td>
-                            }
-                            else
-                            {
-                                <td class="text-center">@difference</td>
-                            }
+                            <td>@Html.DisplayFor(modelItem => item.BodyPart)</td>
                         }
                         else
                         {
-                            <td class="text-center">-</td>
+                            <td class="text-center">@Html.DisplayFor(modelItem => item.Value) @unit</td>
+
+                            if (difference != previousValue && difference != 0)
+                            {
+                                if (difference > 0)
+                                {
+                                    <td class="text-center">+@difference</td>
+                                }
+                                else
+                                {
+                                    <td class="text-center">@difference</td>
+                                }
+                            }
+                            else
+                            {
+                                <td class="text-center">-</td>
+                            }
                         }
-                    }
 
-                    @{
-                        var safeRange = item.SafeRange.ToShortDateString();
-                        <td class="text-center">@safeRange</td>
-                        var treatmentTime = item.TreatmentTime.ToString("dd.MM.yyyy HH:mm");
-                    }
+                        @{
+                            var safeRange = item.SafeRange.ToShortDateString();
+                            <td class="text-center">@safeRange</td>
+                            var treatmentTime = item.TreatmentTime.ToString("dd.MM.yyyy HH:mm");
+                        }
 
-                    <td class="text-center">@treatmentTime</td>
+                        <td class="text-center">@treatmentTime</td>
 
-                    @{
-                        var insertionTime = item.InsertionTime.ToString("dd.MM.yyyy HH:mm");
-                    }
+                        @{
+                            var insertionTime = item.InsertionTime.ToString("dd.MM.yyyy HH:mm");
+                        }
 
-                    <td class="text-center">@insertionTime</td>
-                    <td class="border-end-0">
-                        <div class="btn-group">
-                            <a class="btn btn-secondary me-1" style="height: 38px; width: 70px;" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
-                            <a class="btn btn-danger" style="height: 38px; width: 70px;" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                        </div>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                        <td class="text-center">@insertionTime</td>
+                        <td class="border-end-0">
+                            <div class="btn-group">
+                                <a class="btn btn-secondary me-1" style="height: 38px; width: 70px;" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                                <a class="btn btn-danger" style="height: 38px; width: 70px;" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+else
+{
+    <p>No measurements available</p>
 }

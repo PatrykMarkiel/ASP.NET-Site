@@ -9,106 +9,112 @@
         { "Pulse", "bpm" },
         { "Height", "cm" },
         { "Weight", "kg" },
-        { "Saturation", "%" }, 
+        { "Saturation", "%" },
         { "BodyMeasure", "cm" }
-
     };
 
-    var uniqueMeasurementNames = Model.Select(m => m.MeasurementName).Distinct().Where(measurementName => measurementName.ToString() != "Observation").ToList();
+    var uniqueMeasurementNames = Model?.Select(m => m.MeasurementName).Distinct().Where(measurementName => measurementName.ToString() != "Observation").ToList();
 
     var random = new Random();
 }
 
-@foreach (var measurementName in uniqueMeasurementNames)
+@if (Model != null && uniqueMeasurementNames != null)
 {
-    var measurementData = Model.Where(m => m.MeasurementName == measurementName).OrderBy(m => m.TreatmentTime.Date).ToList();
-
-    var xValues = measurementData.Select(m => m.TreatmentTime.Date.ToString("yyyy-MM-dd")).Distinct().OrderBy(d => d).ToList();
-
-    var differences = new List<double?>();
-
-    for (var i = 0; i < measurementData.Count; i++)
+    @foreach (var measurementName in uniqueMeasurementNames)
     {
-        var currentValue = measurementData[i].Value ?? 0;
-        var previousValue = i > 0 ? (measurementData[i - 1].Value ?? 0) : 0;
+        var measurementData = Model.Where(m => m.MeasurementName == measurementName).OrderBy(m => m.TreatmentTime.Date).ToList();
 
-        differences.Add(currentValue - previousValue);
-    }
+        var xValues = measurementData.Select(m => m.TreatmentTime.Date.ToString("yyyy-MM-dd")).Distinct().OrderBy(d => d).ToList();
 
-    var randomColor = String.Format("#{0:X6}", random.Next(0x1000000));
+        var differences = new List<double?>();
 
-    <div class="container" style="display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-        <div style="width: 900px;">
-            <canvas id="@("myChart_" + measurementName)" style="width:100%;max-width:100%"></canvas>
-        </div>
-        <div style="margin-left: 20px; width: 400px;">
-            <h3><strong>@measurementName</strong> (@measurementUnits[measurementName.ToString()])</h3>
-            <table border="1" style="text-align: center; margin: auto; width: 100%;">
-                <tr>
-                    <th>Date</th>
-                    <th>Value</th>
-                    <th>Difference</th>
-                </tr>
-                @for (var i = 0; i < measurementData.Count; i++)
-                {
+        for (var i = 0; i < measurementData.Count; i++)
+        {
+            var currentValue = measurementData[i].Value ?? 0;
+            var previousValue = i > 0 ? (measurementData[i - 1].Value ?? 0) : 0;
+
+            differences.Add(currentValue - previousValue);
+        }
+
+        var randomColor = String.Format("#{0:X6}", random.Next(0x1000000));
+
+        <div class="container" style="display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+            <div style="width: 900px;">
+                <canvas id="@("myChart_" + measurementName)" style="width:100%;max-width:100%"></canvas>
+            </div>
+            <div style="margin-left: 20px; width: 400px;">
+                <h3><strong>@measurementName</strong> (@measurementUnits[measurementName.ToString()])</h3>
+                <table border="1" style="text-align: center; margin: auto; width: 100%;">
                     <tr>
-                        <td>@measurementData[i].TreatmentTime.Date.ToString("yyyy-MM-dd")</td>
-                        <td>@(measurementData[i].Value ?? 0)</td>
-                        <td>
-                            @if (i > 0)
-                            {
-                                var difference = (measurementData[i].Value ?? 0) - (measurementData[i - 1].Value ?? 0);
-                                var sign = difference > 0 ? "+" : difference < 0 ? "-" : "";
-                                var absDifference = Math.Abs(difference);
-                                <span>@sign@(absDifference > 0 ? absDifference.ToString() : "")</span>
-                            }
-                            else
-                            {
-                                <span>-</span>
-                            }
-                        </td>
+                        <th>Date</th>
+                        <th>Value</th>
+                        <th>Difference</th>
                     </tr>
-                }
-            </table>
-        </div>
-    </div>
-
-
-    <script>
-        var xValues_@measurementName = @Html.Raw(Json.Serialize(xValues));
-
-        var chartData_@measurementName = {
-            labels: xValues_@measurementName,
-                datasets: [{
-                    label: '@measurementName',
-                    data: @Html.Raw(Json.Serialize(measurementData.Select(m => m.Value ?? 0))),
-                    borderColor: '@randomColor',
-                    fill: false
-                }]
-        };
-
-        new Chart("@("myChart_" + measurementName)", {
-            type: "line",
-            data: chartData_@measurementName,
-            options: {
-            legend: { display: true },
-            scales: {
-                x: {
-                    display: true,
-                    title: {
-                        display: true,
-                        text: 'Treatment Date'
+                    @for (var i = 0; i < measurementData.Count; i++)
+                    {
+                        <tr>
+                            <td>@measurementData[i].TreatmentTime.Date.ToString("yyyy-MM-dd")</td>
+                            <td>@(measurementData[i].Value ?? 0)</td>
+                            <td>
+                                @if (i > 0)
+                                {
+                                    var difference = (measurementData[i].Value ?? 0) - (measurementData[i - 1].Value ?? 0);
+                                    var sign = difference > 0 ? "+" : difference < 0 ? "-" : "";
+                                    var absDifference = Math.Abs(difference);
+                                    <span>@sign@(absDifference > 0 ? absDifference.ToString() : "")</span>
+                                }
+                                else
+                                {
+                                    <span>-</span>
+                                }
+                            </td>
+                        </tr>
                     }
-                },
-                y: {
-                    display: true,
-                    title: {
+                </table>
+            </div>
+        </div>
+
+
+        <script>
+            var xValues_@measurementName = @Html.Raw(Json.Serialize(xValues));
+
+            var chartData_@measurementName = {
+                labels: xValues_@measurementName,
+                    datasets: [{
+                        label: '@measurementName',
+                        data: @Html.Raw(Json.Serialize(measurementData.Select(m => m.Value ?? 0))),
+                        borderColor: '@randomColor',
+                        fill: false
+                    }]
+            };
+
+            new Chart("@("myChart_" + measurementName)", {
+                type: "line",
+                data: chartData_@measurementName,
+                options: {
+                legend: { display: true },
+                scales: {
+                    x: {
                         display: true,
-                        text: 'Value'
+                        title: {
+                            display: true,
+                            text: 'Treatment Date'
+                        }
+                    },
+                    y: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Value'
+                        }
                     }
                 }
             }
-        }
-                });
-    </script>
+                                });
+        </script>
+    }
+}
+else
+{
+    <p>No measurement data available</p>
 }
